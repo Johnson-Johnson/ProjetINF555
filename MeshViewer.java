@@ -1,6 +1,8 @@
-import processing.core.*;
+import java.util.*;
 
+import processing.core.*;
 import Jcg.geometry.*;
+import Jcg.polyhedron.Vertex;
 
 /**
  * A simple 3d viewer for visualizing surface meshes
@@ -11,14 +13,14 @@ import Jcg.geometry.*;
 public class MeshViewer extends PApplet {
 
 	SurfaceMesh mesh;
-	//String filename="OFF/high_genus.off";
+	//String filename="OFF/twisted.off";
 	//String filename="OFF/sphere.off";
 	//String filename="OFF/cube.off";
 	//String filename="OFF/torus_33.off";
 	//String filename="OFF/tore.off";
-	String filename="OFF/tri_round_cube.off";
-	//String filename="OFF/tri_hedra.off";
-	//String filename="OFF/tri_horse.off";
+	//String filename="OFF/tri_round_cube.off";
+	String filename="OFF/tri_triceratops.off";
+	//String filename="OFF/sphere.off";
 	
 	int shortestPath=0;
 	int nMethods=3; // number of simplification methods proposed
@@ -30,10 +32,10 @@ public class MeshViewer extends PApplet {
 		  this.mesh=new SurfaceMesh(this, filename);
 	}
 	
-	public void updatedMethod() {
-		/*if(this.simplificationMethod==0) {
-		}*/
-	}
+	/*public void updatedMethod() {
+		if(this.simplificationMethod==0) {
+		}
+	}*/
 
 		 
 		public void draw() {
@@ -55,11 +57,27 @@ public class MeshViewer extends PApplet {
 		
 		public void keyPressed(){
 			  switch(key) {
-			    case('s'):case('S'): ; 
-			    break;
-			    
-			    case('c'):this.shortestPath=(this.shortestPath+1)%this.nMethods; 
-			    this.updatedMethod();
+			    case('d'):case('D'): {
+			    	int count = 0;
+			    	for(Vertex<Point_3> v : this.mesh.polyhedron3D.vertices){
+			    		v.index=count;
+			    		v.tag=0;
+			    		count++;
+			    	}
+			    	Dijkstra D = new Dijkstra(this.mesh.polyhedron3D);
+			    	Vertex<Point_3> s = this.mesh.polyhedron3D.vertices.get(0);
+			    	ArrayList<Pair<Double, Vertex<Point_3>>> A = D.ShortestPaths(s);
+			    	for(int i = 0; i<A.size(); i++){
+			    		System.out.println("i = " + i + " " + A.get(i).first());
+			    	}
+			    	
+			    	Vertex<Point_3> t = this.mesh.polyhedron3D.vertices.get(2149);
+			    	int index = t.index;
+			    	do{
+			    		this.mesh.polyhedron3D.vertices.get(index).tag=2;
+			    		index=A.get(index).second().index;
+			    	} while(index!=0);
+			    }; 
 			    break;
 			  }
 		}

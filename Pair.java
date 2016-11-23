@@ -23,5 +23,4 @@ public class Pair<A, B> {
     public void UpdateA(A a1){
     	this.a=a1;
     }
-
 }

@@ -80,7 +80,17 @@ public class SurfaceMesh {
 			Point_3 p=e.vertex.getPoint();
 			Point_3 q=e.opposite.vertex.getPoint();
 			
-			this.drawSegment(p, q); // draw edge (p,q)
+			if(e.vertex.tag==2&&e.opposite.vertex.tag==2){
+				this.view.stroke(200);
+				this.drawSegment(p, q);
+				this.view.stroke(20);
+			}
+			
+			else {
+				this.view.strokeWeight(1);
+				this.drawSegment(p, q);
+				this.view.strokeWeight(2); // draw edge (p,q)
+			}
 		}
 		view.strokeWeight(1);
 	}

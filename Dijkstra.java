@@ -50,7 +50,7 @@ public class Dijkstra {
 			else continue;
 			
 			for(Vertex<Point_3> u : Voisins(v)){
-				double d = (double) (v.getPoint()).distanceFrom(u.getPoint());
+				double d = (Double) (v.getPoint()).distanceFrom(u.getPoint());
 				Triple<Vertex<Point_3>,Double,Vertex<Point_3>> t2 = new Triple<>(u,d+t1.second(),v);
 				Q.add(t2);
 			}
