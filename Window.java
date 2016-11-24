@@ -2,10 +2,10 @@ import Jcg.polyhedron.*;
 import Jcg.geometry.*;
 
 public class Window {
-	private Tuple<Double,Double,Double,Double,Double,Boolean,Vertex<Point_3>,Vertex<Point_3>,Integer> t;
+	private Tuple<Double,Double,Double,Double,Double,Halfedge<Point_3>> t;
 	
-	public Window(Double a, Double b, Double c, Double d, Double e, Boolean b1, Vertex<Point_3> v1, Vertex<Point_3> v2, Integer i){
-		t = new Tuple<>(a,b,c,d,e,b1,v1,v2,i);
+	public Window(Double a, Double b, Double c, Double d, Double e, Halfedge<Point_3> h){
+		t = new Tuple<>(a,b,c,d,e,h);
 	}
 	public void UpdateLeft(Double a1){
 		this.t.UpdateA(a1);
@@ -37,17 +37,8 @@ public class Window {
 	public double Sigma(){
 		return t.e;
 	}
-	public boolean Orientation(){
+	public Halfedge<Point_3> Halfedge(){
 		return t.f;
-	}
-	public Vertex<Point_3> LeftVertex(){
-		return t.g;
-	}
-	public Vertex<Point_3> RightVertex(){
-		return t.h;
-	}
-	public int Pseudosource(){
-		return t.i;
 	}
 	
 	//Computing the minimal distance (squared) to the real source over a window
@@ -58,6 +49,11 @@ public class Window {
 		}
 		double xPseudosource = (Math.pow(LeftD(),2.)-Math.pow(RightD(),2.)+Math.pow(Math.abs(Left()-Right()),2.))/(2*(Right()-Left()));
 		
-		return (Math.pow(LeftD(),2.)-Math.pow(Math.abs(xPseudosource), 2.));
+		double result = (Math.pow(LeftD(),2.)-Math.pow(Math.abs(xPseudosource), 2.));
+		
+		if (xPseudosource<0.) result=LeftD()*LeftD();
+		else if (xPseudosource>Right()-Left()) result=RightD()*RightD();
+		
+		return result;
 	}
 }
