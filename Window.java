@@ -2,10 +2,10 @@ import Jcg.polyhedron.*;
 import Jcg.geometry.*;
 
 public class Window {
-	private Tuple<Double,Double,Double,Double,Double,Halfedge<Point_3>> t;
+	private Tuple<Double,Double,Double,Double,Double,Halfedge<Point_3>,Vertex<Point_3>> t;
 	
-	public Window(Double a, Double b, Double c, Double d, Double e, Halfedge<Point_3> h){
-		t = new Tuple<>(a,b,c,d,e,h);
+	public Window(Double a, Double b, Double c, Double d, Double e, Halfedge<Point_3> h, Vertex<Point_3> v){
+		t = new Tuple<>(a,b,c,d,e,h,v);
 	}
 	public void UpdateLeft(Double a1){
 		this.t.UpdateA(a1);
@@ -39,6 +39,9 @@ public class Window {
 	}
 	public Halfedge<Point_3> Halfedge(){
 		return t.f;
+	}
+	public Vertex<Point_3> Pseudosource(){
+		return t.g;
 	}
 	
 	//Computing the minimal distance (squared) to the real source over a window

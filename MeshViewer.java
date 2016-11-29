@@ -19,7 +19,7 @@ public class MeshViewer extends PApplet {
 	//String filename="OFF/torus_33.off";
 	//String filename="OFF/tore.off";
 	//String filename="OFF/tri_round_cube.off";
-	String filename="OFF/tri_triceratops.off";
+	String filename="OFF/nefertiti.off";
 	//String filename="OFF/sphere.off";
 	
 	int shortestPath=0;
@@ -71,7 +71,7 @@ public class MeshViewer extends PApplet {
 			    		System.out.println("i = " + i + " " + A.get(i).first());
 			    	}
 			    	
-			    	Vertex<Point_3> t = this.mesh.polyhedron3D.vertices.get(2149);
+			    	Vertex<Point_3> t = this.mesh.polyhedron3D.vertices.get(21);
 			    	int index = t.index;
 			    	do{
 			    		this.mesh.polyhedron3D.vertices.get(index).tag=2;

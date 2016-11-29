@@ -12,7 +12,7 @@
  * @param <I> index of pseudosource
  */
 
-public class Tuple<A, B, C, D, E, F> {
+public class Tuple<A, B, C, D, E, F, G> {
 	
 	public A a;
     public B b;
@@ -20,14 +20,16 @@ public class Tuple<A, B, C, D, E, F> {
     public D d;
     public E e;
     public F f;
+    public G g;
 
-    public Tuple(A a, B b, C c, D d, E e, F f) {
+    public Tuple(A a, B b, C c, D d, E e, F f, G g) {
         this.a = a;
         this.b = b;
         this.c = c;
         this.d = d;
         this.e = e;
         this.f = f;
+        this.g = g;
     }
     public void UpdateA(A a1){
     	this.a=a1;
@@ -46,5 +48,8 @@ public class Tuple<A, B, C, D, E, F> {
     }
     public void UpdateF(F f1){
     	this.f=f1;
+    }
+    public void UpdateG(G g1){
+    	this.g=g1;
     }
 }
