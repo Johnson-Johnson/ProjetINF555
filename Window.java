@@ -59,4 +59,13 @@ public class Window {
 		
 		return result;
 	}
+	
+	public String to_string(){
+		double d0 = this.Left()*this.Left() + this.LeftD()*this.Left() + this.RightD();
+		double d1 = this.Right()*this.Right() + this.LeftD()*this.Right() + this.RightD();
+		String s0 = "on the Halfedge " + this.Halfedge().toString();
+		String s1 = "edge coeff: ("+this.Left()+", "+this.Right()+")" + " and parabolic coeff: ("+d0+", "+d1+")";
+		String s2 = "Sigma: "+this.Sigma() + " and pseudosource: " +this.Pseudosource().getPoint().toString() ;
+		return s0+"\n"+s1+"\n"+s2;
+	}
 }
