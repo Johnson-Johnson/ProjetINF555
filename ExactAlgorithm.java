@@ -134,7 +134,6 @@ public class ExactAlgorithm {
 	
 	
 	
-	
 	//		s
 	//
 	//
@@ -169,12 +168,16 @@ public class ExactAlgorithm {
 		//cas ou la pseudosource et p1 sont confondus
 		if (source.equals(p1)){
 			Window wsc1 = new Window(0., l1, l2, l, w.Sigma(), h1,w.Pseudosource());
+			Window wsc2 = new Window(0., l2, l2, 0., w.Sigma(), h2, w.Pseudosource());
 			result.add(wsc1);
+			result.add(wsc2);
 		}
 		
 		//cas ou la pseudosource et p2 sont confondus
 		if (source.equals(p2)){
+			Window wsc1 = new Window(0., l1, l1, 0., w.Sigma(), h1, w.Pseudosource());
 			Window wsc2 = new Window(0., l2, l, l1, w.Sigma(), h2,w.Pseudosource());
+			result.add(wsc1);
 			result.add(wsc2);
 		}
 		
@@ -275,6 +278,7 @@ public class ExactAlgorithm {
 		return new double[]{sol.get(0, 0), sol.get(1, 0)};
 	}
 	
+	
 	//the two functions that follow allow us to switch from para coeff to dist coeff
 	//from distances to parabolic coeff
 	private double[] exchangeCoeff(double[] para){
@@ -283,6 +287,7 @@ public class ExactAlgorithm {
 		double[] res = {c1, c2};
 		return res;
 	}
+	
 	
 	//from parabolic coeff to distances
 	private double[] exchangeBackCoeff(double[] para){
