@@ -40,12 +40,13 @@ public class ExactAlgorithm {
 		return false;
 	}
 	
-	
 	//Résolution équation degré 2
 	static Pair<Double,Double> Solve(double a, double b, double c){
 		double Delta = b*b-4*a*c;
+		if (equal(Delta,0.)) Delta = 0.;
 		if(Delta<0) return null;
 		return new Pair<Double,Double>((-b+Math.sqrt(Delta))/(2*a),(-b-Math.sqrt(Delta))/(2*a));
+		
 	}
 	
 	//Calcule les coordonnées de la pseudosource avec pour origine l'extrémité gauche de la fenêtre
@@ -54,11 +55,9 @@ public class ExactAlgorithm {
 		double b1 = w.Right();
 		double d0 = w.LeftD();
 		double d1 = w.RightD();
-		
 		d0 = d0*d0;
 		d1 = d1*d1;
-		
-		double x = (b1-b0)+(d0-d1)/(b1-b0);
+		double x = 1./2.*((b1-b0)+(d0-d1)/(b1-b0));
 		double y = Math.sqrt(d0-x*x);
 		
 		return new Point_2(x,y);
@@ -73,9 +72,10 @@ public class ExactAlgorithm {
 		
 		Point_2 p1 = Pseudosource(w1);
 		Point_2 p2 = Pseudosource(w2);
-		double np1 = p1.squareDistance(new Point_2(0.,0.)).doubleValue();
-		double np2 = p2.squareDistance(new Point_2(0.,0.)).doubleValue();
-		//p2.UpdateA(p2.first()+w2.Left()-w1.Left());
+		System.out.println("p1 "+p1.toString());
+		System.out.println("p2 "+p2.toString());
+		double np1 = p1.x*p1.x+p1.y*p1.y;
+		double np2 = p2.x*p2.x+p2.y*p2.y;
 		
 		double sigma1 = w1.Sigma();
 		double sigma2 = w2.Sigma();
@@ -85,9 +85,9 @@ public class ExactAlgorithm {
 		double gamma = np1-np2-beta*beta;
 		
 		double A = alpha*alpha-beta*beta;
-		double C = (1/4.)*gamma*gamma-np2*beta*beta;
 		double B = gamma*alpha+2*p2.x*beta*beta;
-		
+		double C = 1./4.*gamma*gamma-np2*beta*beta;
+
 		double b0 = w1.Left();
 		double b1 = w1.Right();
 		
@@ -95,18 +95,11 @@ public class ExactAlgorithm {
 		//racines du binôme
 		if (psol != null){
 			double r1 = psol.first();
-			double r2 = psol.second();
-			
-			//si on en croit l'article il ne peut avoir deux solutions 
-			//au système si ca arrive signalons le ...
-			if (b0<r1 && r1<b1 && b0<r1 && r1<b1){
-				System.out.println("deux racines --> strange ...");
-			}
+			//double r2 = psol.second();
+			//System.out.println("roots :"+r1+", "+r2);
+			//la theorie cest que c'est une racine double --> to be checked
 			if (b0<r1 && r1<b1){
 				return r1;
-			}
-			if (b0<r2 && r2<b1){
-				return r2;
 			}		
 		}
 		return -1.;
@@ -296,11 +289,15 @@ public class ExactAlgorithm {
 	//param window test (here percentage)
 	double coeffl = 0.;
 	double coeffr = 1.;
-	Point_3 s = new Point_3(5.,0.5,0);
+	double sigma = 0.;
+	double sigma2 = 0.;
+	Point_3 s = new Point_3(10.,0.5,0);
+	Point_3 s2 = new Point_3(0.5,5,0);
 	Point_3 P1 = new Point_3(1,2,0);
 	Point_3 P2 = new Point_3(3,1,0);
 	Point_3 P3 = new Point_3(1,1,0);
 	Vertex<Point_3> vs = new Vertex<Point_3>(s);
+	Vertex<Point_3> vs2 = new Vertex<Point_3>(s);
 	Vertex<Point_3> vp1 = new Vertex<Point_3>(P1);
 	Vertex<Point_3> vp2 = new Vertex<Point_3>(P2);
 	Vertex<Point_3> vp3 = new Vertex<Point_3>(P3);
@@ -330,6 +327,8 @@ public class ExactAlgorithm {
 	Point_3 wr = (Point_3)Point_3.linearCombination(new Point_3[]{P1,P2}, new Double[]{(l-coeffr)/l, coeffr/l});
 	double d0 = Math.sqrt(s.minus(wl).squaredLength().doubleValue());
 	double d1 = Math.sqrt(s.minus(wr).squaredLength().doubleValue());
+	double d20 = Math.sqrt(s2.minus(wl).squaredLength().doubleValue());
+	double d21 = Math.sqrt(s2.minus(wr).squaredLength().doubleValue());
 	//double[] coeff = inst.exchangeCoeff(new double[]{coeffl, coeffr,d0,d1});
 	Window w = new Window(coeffl, coeffr, d0, d1, 0., h, vs);
 	ArrayList<Window> lw = inst.FindOppositeWindows(w);
@@ -340,6 +339,14 @@ public class ExactAlgorithm {
 		//System.out.println(Math.sqrt(tab[0])+", "+Math.sqrt(tab[1]));
 	}
 	//END TEST
+	
+	//TEST2
+	System.out.println("*** *** ***");
+	System.out.println("test2");
+	System.out.println("distances"+d0+", "+d1+", "+d20+", "+d21);
+	Window w1 = new Window(coeffl, coeffr, d0, d1, sigma, h, vs);
+	Window w2 = new Window(coeffl, coeffr, d20, d21, sigma2, h, vs2);
+	System.out.println(inst.intersectPoint(w1, w2));
 		
 	}
 	
