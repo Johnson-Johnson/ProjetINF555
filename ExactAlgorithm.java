@@ -133,6 +133,8 @@ public class ExactAlgorithm {
 	
 	
 	
+	
+	
 	//		s
 	//
 	//
@@ -163,6 +165,18 @@ public class ExactAlgorithm {
 		double l = Math.sqrt(p2.minus(p1).squaredLength().doubleValue());
 		double l1 = Math.sqrt(p2.minus(p3).squaredLength().doubleValue());
 		double l2 = Math.sqrt(p3.minus(p1).squaredLength().doubleValue());
+		
+		//cas ou la pseudosource et p1 sont confondus
+		if (source.equals(p1)){
+			Window wsc1 = new Window(0., l1, l2, l, w.Sigma(), h1,w.Pseudosource());
+			result.add(wsc1);
+		}
+		
+		//cas ou la pseudosource et p2 sont confondus
+		if (source.equals(p2)){
+			Window wsc2 = new Window(0., l2, l, l1, w.Sigma(), h2,w.Pseudosource());
+			result.add(wsc2);
+		}
 		
 		Point_3 wl = (Point_3)Point_3.linearCombination(new Point_3[]{p1,p2}, new Double[]{(l-w.Left())/l, w.Left()/l});
 		Point_3 wr = (Point_3)Point_3.linearCombination(new Point_3[]{p1,p2}, new Double[]{(l-w.Right())/l, w.Right()/l});
@@ -234,6 +248,7 @@ public class ExactAlgorithm {
 		}
 		return result;
 	}
+	
 	//				 p2
 	//				/
 	//  s-----p0---/------->
@@ -285,13 +300,13 @@ public class ExactAlgorithm {
 	ExactAlgorithm inst = new ExactAlgorithm();	
 	
 	//BEGIN TEST
-	System.out.println("test");
+	System.out.println("test 1");
 	//param window test (here percentage)
 	double coeffl = 0.;
 	double coeffr = 1.;
 	double sigma = 0.;
 	double sigma2 = 0.;
-	Point_3 s = new Point_3(10.,0.5,0);
+	Point_3 s = new Point_3(1.,2.,0);
 	Point_3 s2 = new Point_3(0.5,5,0);
 	Point_3 P1 = new Point_3(1,2,0);
 	Point_3 P2 = new Point_3(3,1,0);
