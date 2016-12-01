@@ -59,4 +59,11 @@ public class Window {
 		
 		return result;
 	}
+	
+	public String to_string(){
+		String s0 = "on the Halfedge " + this.Halfedge().toString();
+		String s1 = "edge coeff: ("+this.Left()+", "+this.Right()+")" + " and distances: ("+this.LeftD()+", "+this.RightD()+")";
+		String s2 = "Sigma: "+this.Sigma() + " and pseudosource: " +this.Pseudosource().getPoint().toString() ;
+		return s0+"\n"+s1+"\n"+s2;
+	}
 }
