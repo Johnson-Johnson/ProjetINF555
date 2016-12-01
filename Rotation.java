@@ -1,5 +1,6 @@
 import Jama.Matrix;
 import Jcg.geometry.*;
+import Jcg.polyhedron.*;
 
 public class Rotation {
 	Matrix Rotation;
@@ -23,10 +24,46 @@ public class Rotation {
 		Rotation = new Matrix(array);
 	}
 	
+	public static Rotation GetRotation(Halfedge<Point_3> h){
+		Point_3 p1 = h.vertex.getPoint();
+		Point_3 p2 = h.next.vertex.getPoint();
+		Point_3 p3 = h.opposite.vertex.getPoint();
+		Rotation R = new Rotation(p1,p2,p3);
+		return R;
+	}
+	
 	public Point_3 Transform(Point_3 p){
 		double[][] arrayp3 = {{p.x},{p.y},{p.z}};
 		Matrix mp3 = new Matrix(arrayp3);
 		Matrix res = Rotation.times(mp3);
 		return new Point_3(res.get(0, 0), res.get(1, 0), res.get(2, 0));
-	}	
+	}
+	
+	public Point_3 TransformBack(Point_3 p){
+		double[][] arrayp3 = {{p.x},{p.y},{p.z}};
+		Matrix mp3 = new Matrix(arrayp3);
+		Matrix Inv = Rotation.inverse();
+		Matrix res = Inv.times(mp3);
+		return new Point_3(res.get(0, 0), res.get(1, 0), res.get(2, 0));
+	}
+	
+	public void TransformTriangle(Halfedge<Point_3> h){
+		Point_3 p1 = h.vertex.getPoint();
+		Point_3 p2 = h.next.vertex.getPoint();
+		Point_3 p3 = h.opposite.vertex.getPoint();
+		Rotation R = new Rotation(p1,p2,p3);
+		p1 = R.Transform(p1);
+		p2 = R.Transform(p2);
+		p3 = R.Transform(p3);
+	}
+	
+	public void TransformTriangleBack(Halfedge<Point_3> h){
+		Point_3 p1 = h.vertex.getPoint();
+		Point_3 p2 = h.next.vertex.getPoint();
+		Point_3 p3 = h.opposite.vertex.getPoint();
+		Rotation R = new Rotation(p1,p2,p3);
+		p1 = R.TransformBack(p1);
+		p2 = R.TransformBack(p2);
+		p3 = R.TransformBack(p3);
+	}
 }
