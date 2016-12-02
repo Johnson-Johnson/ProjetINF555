@@ -40,6 +40,13 @@ public class ExactAlgorithm {
 		return false;
 	}
 	
+	static double Norme(Halfedge<Point_3> h){
+		Point_3 p1 = h.vertex.getPoint();
+		Point_3 p2 = h.opposite.vertex.getPoint();
+		
+		return (Double) p1.distanceFrom(p2);
+	}
+	
 	//Résolution équation degré 2
 	static Pair<Double,Double> Solve(double a, double b, double c){
 		double Delta = b*b-4*a*c;
@@ -72,8 +79,8 @@ public class ExactAlgorithm {
 		
 		Point_2 p1 = Pseudosource(w1);
 		Point_2 p2 = Pseudosource(w2);
-		System.out.println("p1 "+p1.toString());
-		System.out.println("p2 "+p2.toString());
+		System.out.println("IntersectPoint p1 "+p1.toString());
+		System.out.println("IntersectPoint p2 "+p2.toString());
 		double np1 = p1.x*p1.x+p1.y*p1.y;
 		double np2 = p2.x*p2.x+p2.y*p2.y;
 		
@@ -114,6 +121,7 @@ public class ExactAlgorithm {
 			TreeSet<Window> tswi = T.get(w1.Halfedge().index);
 			tswi.remove(w1);
 			tswi.add(w2);
+			Q.add(w2);
 		}
 		
 		//on a un point d'intersect
@@ -128,18 +136,20 @@ public class ExactAlgorithm {
 			tswi.remove(w1);
 			tswi.add(w1);
 			tswi.add(w2);
+			Q.add(w1);
+			Q.add(w2);
 		}
 	}
 	
 	
 	
 	//		s
-	//
-	//
-	//
-	//          h
-	//	   p1_______p2
-	//		\		/
+	//      |\ 
+	//      | \
+	//      |  \
+	//      | h \
+	//	   p1____\__p2
+	//		\	  \	/
 	//		 \h2 h1/
 	//		  \	  /
 	//         p3
@@ -163,6 +173,24 @@ public class ExactAlgorithm {
 		double l = Math.sqrt(p2.minus(p1).squaredLength().doubleValue());
 		double l1 = Math.sqrt(p2.minus(p3).squaredLength().doubleValue());
 		double l2 = Math.sqrt(p3.minus(p1).squaredLength().doubleValue());
+		
+		//cas ou la pseudosource et p1 sont confondus
+		if (source.equals(p1)){
+			System.out.println("Case 0-1");
+			Window wsc1 = new Window(0., l1, l2, l, w.Sigma(), h1,w.Pseudosource());
+			Window wsc2 = new Window(0., l2, l2, 0., w.Sigma(), h2, w.Pseudosource());
+			result.add(wsc1);
+			result.add(wsc2);
+		}
+		
+		//cas ou la pseudosource et p2 sont confondus
+		if (source.equals(p2)){
+			System.out.println("Case 0-2");
+			Window wsc1 = new Window(0., l1, l1, 0., w.Sigma(), h1, w.Pseudosource());
+			Window wsc2 = new Window(0., l2, l, l1, w.Sigma(), h2,w.Pseudosource());
+			result.add(wsc1);
+			result.add(wsc2);
+		}
 		
 		Point_3 wl = (Point_3)Point_3.linearCombination(new Point_3[]{p1,p2}, new Double[]{(l-w.Left())/l, w.Left()/l});
 		Point_3 wr = (Point_3)Point_3.linearCombination(new Point_3[]{p1,p2}, new Double[]{(l-w.Right())/l, w.Right()/l});
@@ -277,10 +305,6 @@ public class ExactAlgorithm {
 		return res;
 	}
 	
-	private void Propagation(Window w){
-		
-	}
-	
 	public static void main(String args[]) {
 	ExactAlgorithm inst = new ExactAlgorithm();	
 	
@@ -348,6 +372,76 @@ public class ExactAlgorithm {
 	Window w2 = new Window(coeffl, coeffr, d20, d21, sigma2, h, vs2);
 	System.out.println(inst.intersectPoint(w1, w2));
 		
+	}
+	
+	public void Geodesics(Vertex<Point_3> s){
+		this.Start(s);
+		
+		while(!Q.isEmpty()){
+			//On prend la plus proche
+			Window w = Q.poll();
+			System.out.println(w.to_string());
+			//On ramène le triangle dans un plan orthogonal à (Oz)
+			Halfedge<Point_3> h = w.Halfedge();
+			Rotation R = Rotation.GetRotation(h);
+			R.TransformTriangle(h);
+			R.TransformVertex(w.Pseudosource());
+			//On trouve les opposite Windows
+			ArrayList<Window> New = FindOppositeWindows(w);
+			R.TransformBackVertex(w.Pseudosource());
+			//Pour chacune...
+			for(Window wi : New){
+				//On prend les windows déjà présentes sur la halfedge correspondante
+				Halfedge<Point_3> hi = wi.Halfedge();
+				TreeSet<Window> Ti = this.T.get(hi.index);
+				double[] Coeff = exchangeCoeff(new double[] {wi.Left(),wi.Right(),wi.LeftD(),wi.RightD()});
+				//On définit un tableau pour définir les nouvelles windows correctement découpées
+				double last = wi.Left();
+				//On découpe
+				ArrayList<Window> Remove = new ArrayList<Window>();
+				ArrayList<Window> Add = new ArrayList<Window>();
+				for(Window Wcompare : Ti.tailSet(wi, true)){
+					//Pas d'intersection (fin de la boucle)
+					if(Wcompare.Left()>wi.Right()) break;
+					//Pas d'intersection au début
+					if(Wcompare.Right()<wi.Left()) continue;
+					//Si y a un espace vide
+					if(!equal(Wcompare.Left(),last)) {
+						System.out.println("Vide sur l'arête");
+						double[] D = exchangeBackCoeff(new double[] {last, Wcompare.Left(),Coeff[0],Coeff[1]});
+						Window WindowCut = new Window(last,Wcompare.Left(),D[0],D[1],wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
+						//CutWindows.add(WindowCut);
+						Ti.add(WindowCut);
+						last = WindowCut.Right();
+					}
+					//On découpe
+					double[] D = exchangeBackCoeff(new double[] {last, Wcompare.Left(),Coeff[0],Coeff[1]});
+					Window WindowCut = new Window(last,Math.min(Wcompare.Right(),wi.Right()),D[0],D[1],wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
+					last = WindowCut.Right();
+					//On compare puis on push les windows
+					handleConflict(WindowCut, Wcompare);
+				}
+				//Si espace vide à la fin
+				if (!equal(last,wi.Right())){
+					Window WindowCut = new Window(last,wi.Left(),wi.LeftD(),wi.RightD(),wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
+					//CutWindows.add(WindowCut);
+					Ti.add(WindowCut);
+				}
+			}
+			//On remet le triangle comme il faut
+			R.TransformTriangleBack(h);
+		}
+	}
+
+	public void Start(Vertex<Point_3> s){
+		Halfedge<Point_3> h = s.getHalfedge();
+		Halfedge<Point_3> e = h.opposite;
+		
+		do {
+			Window w = new Window(0.,Norme(e),0.,Norme(e),0.,e,s);
+			this.Q.add(w);
+			e = e.opposite.next;
+		} while(e.opposite!=h);
 	}
 	
 }
