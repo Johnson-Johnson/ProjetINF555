@@ -50,14 +50,12 @@ public class Window {
 			System.out.println("Erreur dans MinimalDSquare, fenêtre de taille nulle");
 			return Sigma();
 		}
-		double d0 = Left()*Left()+LeftD()*Left()+RightD();
-		double d1 = Right()*Right()+LeftD()*Right()+RightD();
-		double xPseudosource = (Math.pow(d0,2.)-Math.pow(d1,2.)+Math.pow(Math.abs(Left()-Right()),2.))/(2*(Right()-Left()));
+		double xPseudosource = (Math.pow(LeftD(),2.)-Math.pow(RightD(),2.)+Math.pow(Math.abs(Left()-Right()),2.))/(2*(Right()-Left()));
 		
-		double result = (Math.pow(d0,2.)-Math.pow(Math.abs(xPseudosource), 2.));
+		double result = (Math.pow(LeftD(),2.)-Math.pow(Math.abs(xPseudosource), 2.));
 		
-		if (xPseudosource<0.) result=d0*d0;
-		else if (xPseudosource>Right()-Left()) result=d1*d1;
+		if (xPseudosource<0.) result=LeftD()*LeftD();
+		else if (xPseudosource>Right()-Left()) result=RightD()*RightD();
 		
 		return result;
 	}

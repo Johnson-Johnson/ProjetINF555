@@ -36,6 +36,7 @@ public class Rotation {
 		double[][] arrayp3 = {{p.x},{p.y},{p.z}};
 		Matrix mp3 = new Matrix(arrayp3);
 		Matrix res = Rotation.times(mp3);
+		System.out.println(p.toString());
 		return new Point_3(res.get(0, 0), res.get(1, 0), res.get(2, 0));
 	}
 	
@@ -44,6 +45,7 @@ public class Rotation {
 		Matrix mp3 = new Matrix(arrayp3);
 		Matrix Inv = Rotation.inverse();
 		Matrix res = Inv.times(mp3);
+		System.out.println(p.toString());
 		return new Point_3(res.get(0, 0), res.get(1, 0), res.get(2, 0));
 	}
 	
@@ -65,5 +67,15 @@ public class Rotation {
 		p1 = R.TransformBack(p1);
 		p2 = R.TransformBack(p2);
 		p3 = R.TransformBack(p3);
+	}
+	
+	public void TransformVertex(Vertex<Point_3> v){
+		Point_3 p = v.getPoint();
+		v.setPoint(Transform(p));
+	}
+	
+	public void TransformBackVertex(Vertex<Point_3> v){
+		Point_3 p = v.getPoint();
+		v.setPoint(TransformBack(p));
 	}
 }
