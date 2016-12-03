@@ -2,7 +2,7 @@ import java.util.*;
 
 import processing.core.*;
 import Jcg.geometry.*;
-import Jcg.polyhedron.Vertex;
+import Jcg.polyhedron.*;
 
 /**
  * A simple 3d viewer for visualizing surface meshes
@@ -15,11 +15,11 @@ public class MeshViewer extends PApplet {
 	SurfaceMesh mesh;
 	//String filename="OFF/twisted.off";
 	//String filename="OFF/sphere.off";
-	//String filename="OFF/cube.off";
+	String filename="OFF/cube.off";
 	//String filename="OFF/torus_33.off";
 	//String filename="OFF/tore.off";
 	//String filename="OFF/tri_round_cube.off";
-	String filename="OFF/nefertiti.off";
+	//String filename="OFF/nefertiti.off";
 	//String filename="OFF/sphere.off";
 	
 	int shortestPath=0;
@@ -77,8 +77,24 @@ public class MeshViewer extends PApplet {
 			    		this.mesh.polyhedron3D.vertices.get(index).tag=2;
 			    		index=A.get(index).second().index;
 			    	} while(index!=0);
-			    }; 
+			    };
 			    break;
+			    case('e'):case('E'): {
+			    	int count = 0;
+			    	for(Vertex<Point_3> v : this.mesh.polyhedron3D.vertices){
+			    		v.index=count;
+			    		v.tag=0;
+			    		count++;
+			    	}
+			    	
+			    	ExactAlgorithm E = new ExactAlgorithm(this.mesh.polyhedron3D);
+			    	Vertex<Point_3> s = this.mesh.polyhedron3D.vertices.get(0);
+			    	E.Geodesics(s);
+			    	TreeSet<Window> T = E.T.get(0);
+			    	for(Window w : T){
+			    		System.out.println(w.to_string());
+			    	}
+			    }
 			  }
 		}
 		

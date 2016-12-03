@@ -45,6 +45,7 @@ public class Window {
 	}
 	
 	//Computing the minimal distance (squared) to the real source over a window
+	//Douteux
 	public double MinimalDSquare(){
 		if(Left()==Right()){
 			System.out.println("Erreur dans MinimalDSquare, fenêtre de taille nulle");
