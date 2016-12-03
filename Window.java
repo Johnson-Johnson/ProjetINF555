@@ -45,6 +45,7 @@ public class Window {
 	}
 	
 	//Computing the minimal distance (squared) to the real source over a window
+	//Douteux
 	public double MinimalDSquare(){
 		if(Left()==Right()){
 			System.out.println("Erreur dans MinimalDSquare, fenêtre de taille nulle");
@@ -58,5 +59,12 @@ public class Window {
 		else if (xPseudosource>Right()-Left()) result=RightD()*RightD();
 		
 		return result;
+	}
+	
+	public String to_string(){
+		String s0 = "on the Halfedge " + this.Halfedge().toString();
+		String s1 = "edge coeff: ("+this.Left()+", "+this.Right()+")" + " and distances: ("+this.LeftD()+", "+this.RightD()+")";
+		String s2 = "Sigma: "+this.Sigma() + " and pseudosource: " +this.Pseudosource().getPoint().toString() ;
+		return s0+"\n"+s1+"\n"+s2;
 	}
 }

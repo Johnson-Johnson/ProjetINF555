@@ -11,7 +11,7 @@ public class Dijkstra {
 		this.polyhedron3D=polyhedron3D;
 	}
 
-	public ArrayList<Vertex<Point_3>> Voisins(Vertex<Point_3> v){
+	public static ArrayList<Vertex<Point_3>> Voisins(Vertex<Point_3> v){
 		Halfedge<Point_3> h = v.getHalfedge();
 		
 		ArrayList<Vertex<Point_3>> result = new ArrayList<Vertex<Point_3>>();
