@@ -394,8 +394,11 @@ public class ExactAlgorithm {
     	
 		this.Start(s);
 		System.out.println("iniQsize = "+Q.size());
+		int compteur = 0;
 		
 		while(!Q.isEmpty()){
+			if (compteur ==20) break;
+			compteur++;
 			//On prend la plus proche
 			Window w = Q.poll();
 			System.out.println("\n\n\n\ncurrent window"+w.to_string());
@@ -403,7 +406,7 @@ public class ExactAlgorithm {
 			Halfedge<Point_3> h = w.Halfedge();
 			Rotation R = new Rotation(h);
 			//R.basicInfo();
-			//System.out.println(R.toString());
+			System.out.println(R.toString());
 			System.out.println("transform triangle");
 			R.TransformTriangle(h);
 		
@@ -423,6 +426,7 @@ public class ExactAlgorithm {
 				TreeSet<Window> Ti = this.T.get(hi.index);
 				if (Ti.tailSet(wi, true).isEmpty()){
 					System.out.println("il n'y a personne sur l'edge");
+					Ti.add(wi);
 					Q.add(wi);
 					continue;
 				}
@@ -432,7 +436,7 @@ public class ExactAlgorithm {
 				//On découpe
 				//ArrayList<Window> Remove = new ArrayList<Window>();
 				//ArrayList<Window> Add = new ArrayList<Window>();
-				System.out.println("nombre de windows à comparer : " + Ti.tailSet(wi, true));
+				System.out.println("nombre de windows à comparer : " + Ti.tailSet(wi, true).size());
 				for(Window Wcompare : Ti.tailSet(wi, true)){
 					System.out.println("already there"+Wcompare.to_string());
 					//Pas d'intersection (fin de la boucle)

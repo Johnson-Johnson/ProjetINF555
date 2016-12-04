@@ -31,6 +31,10 @@ public class Rotation {
 		Vector_3 p13 = (Vector_3) p3.minus(p1);
 		Vector_3 z = new Vector_3(0.,0.,1.);
 		Vector_3 v = p12.crossProduct(p13);
+		if (p12.z == 0 && p13.z == 0){
+			double[][] idarray = {{1.,0.,0.},{0.,1.,0.},{0.,0.,1.}};
+			return (new Matrix(idarray));
+		}
 		Double norm = Math.sqrt(v.squaredLength().doubleValue());
 		Vector_3 n = v.multiplyByScalar(1/norm); //normale au plan p1,p2,P3
 		double c = n.innerProduct(z).doubleValue();

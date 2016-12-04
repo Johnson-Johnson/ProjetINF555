@@ -15,13 +15,13 @@ public class MeshViewer extends PApplet {
 	SurfaceMesh mesh;
 	//String filename="OFF/twisted.off";
 	//String filename="OFF/sphere.off";
-	//String filename="OFF/cube.off";
+	String filename="OFF/cube.off";
 	//String filename="OFF/torus_33.off";
 	//String filename="OFF/tore.off";
 	//String filename="OFF/tri_round_cube.off";
 	//String filename="OFF/nefertiti.off";
 	//String filename="OFF/sphere.off";
-	String filename="OFF/tri_triceratops.off";
+	//String filename="OFF/tri_triceratops.off";
 	
 	int shortestPath=0;
 	int nMethods=3; // number of simplification methods proposed
