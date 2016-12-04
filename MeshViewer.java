@@ -81,15 +81,27 @@ public class MeshViewer extends PApplet {
 			    };
 			    break;
 			    case('e'):case('E'): {
-			    	int count = 0;
+			    	int countvertices = 0;
 			    	for(Vertex<Point_3> v : this.mesh.polyhedron3D.vertices){
-			    		v.index=count;
+			    		v.index=countvertices;
 			    		v.tag=0;
-			    		count++;
+			    		countvertices++;
 			    	}
+			    	
+			    	/*int countedges = 0;
+			    	for(Halfedge<Point_3> h : this.mesh.polyhedron3D.halfedges){
+			    		h.index=countedges;
+			    		h.tag=0;
+			    		countedges++;
+			    	}*/
+			    	
+			    	//for(Halfedge<Point_3> h : this.mesh.polyhedron3D.halfedges){
+			    	//	System.out.println(h.index);
+			    	//}
 			    	
 			    	ExactAlgorithm E = new ExactAlgorithm(this.mesh.polyhedron3D);
 			    	Vertex<Point_3> s = this.mesh.polyhedron3D.vertices.get(0);
+			    	System.out.println("/////////////computing windows/////////////");
 			    	E.Geodesics(s);
 			    	TreeSet<Window> T = E.T.get(0);
 			    	for(Window w : T){

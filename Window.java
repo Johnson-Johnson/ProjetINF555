@@ -47,16 +47,18 @@ public class Window {
 	//Computing the minimal distance (squared) to the real source over a window
 	//Douteux
 	public double MinimalDSquare(){
+		double result = Sigma();
+		
 		if(Left()==Right()){
 			System.out.println("Erreur dans MinimalDSquare, fenêtre de taille nulle");
-			return Sigma();
+			return result;
 		}
-		double xPseudosource = (Math.pow(LeftD(),2.)-Math.pow(RightD(),2.)+Math.pow(Math.abs(Left()-Right()),2.))/(2*(Right()-Left()));
 		
-		double result = (Math.pow(LeftD(),2.)-Math.pow(Math.abs(xPseudosource), 2.));
+		double xPseudosource = 1./2.*(Right()-Left()+(LeftD()*LeftD()-RightD()*RightD())/(Right()-Left()));
 		
-		if (xPseudosource<0.) result=LeftD()*LeftD();
-		else if (xPseudosource>Right()-Left()) result=RightD()*RightD();
+		if (xPseudosource<Left()) result+=LeftD();
+		else if (xPseudosource>Right()) result+=RightD();
+		else result += Math.sqrt((Math.pow(LeftD(),2.)-Math.pow(Math.abs(xPseudosource),2.)));
 		
 		return result;
 	}
@@ -65,6 +67,7 @@ public class Window {
 		String s0 = "on the Halfedge " + this.Halfedge().toString();
 		String s1 = "edge coeff: ("+this.Left()+", "+this.Right()+")" + " and distances: ("+this.LeftD()+", "+this.RightD()+")";
 		String s2 = "Sigma: "+this.Sigma() + " and pseudosource: " +this.Pseudosource().getPoint().toString() ;
-		return s0+"\n"+s1+"\n"+s2;
+		//return s0+"\n"+s1+"\n"+s2;
+		return "******window data*******"+"\n"+s0+s1+s2+"\n"+"*****************";
 	}
 }
