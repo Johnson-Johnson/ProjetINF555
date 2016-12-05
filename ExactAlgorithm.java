@@ -39,6 +39,10 @@ public class ExactAlgorithm {
 		return false;
 	}
 	
+	static double round7(double a){
+		return Math.round(a*10000000.)/10000000. ;
+	}
+	
 	static double Norme(Halfedge<Point_3> h){
 		Point_3 p1 = h.vertex.getPoint();
 		Point_3 p2 = h.opposite.vertex.getPoint();
@@ -69,6 +73,29 @@ public class ExactAlgorithm {
 		return new Point_2(x,y);
 	}
 	
+	public Point_2 goodPseudosource(Point_2 p1, Point_2 p2, Point_2 p3, Point_2 s){
+		Vector_2 p12 = (Vector_2) p2.minus(p1);//en réalité ceci est p1-p2 (hallucinant ...)
+		Vector_2 u = p12.multiplyByScalar(1/Math.sqrt(p12.squaredLength().doubleValue()));
+		//Vector_2 v = new Vector_2(-Math.signum(u.x*u.y)*u.y,Math.signum(u.x*u.y)*u.x);
+		Vector_2 v = new Vector_2(-u.y,u.x);
+		Point_2 origin = p2;
+		Vector_2 p13 = (Vector_2) p1.minus(p3);
+		double sign = Math.signum(p13.innerProduct(v).doubleValue());
+		System.out.println("sign "+sign);
+		if (sign == 1.) {
+			System.out.println("done");
+			u=u.multiplyByScalar(-1.);
+			v=v.multiplyByScalar(-1.);
+			origin = p1;
+		}
+		/*System.out.println("u "+u.toString());
+		System.out.println("v "+v.toString());
+		System.out.println("s "+s.toString());
+		System.out.println("p1 "+p1.toString());
+		System.out.println("p2 "+p2.toString());*/
+		return new Point_2(round7(s.x*u.x+s.y*v.x+origin.x),round7(s.x*u.y+s.y*v.y+origin.y));
+	}
+	
 	//Calcule le point de superposition de 2 window avec LE MEME INTERVALLE
 	//return le point d'intersection ou -1 si il n'y a pas de separation
 	
@@ -79,8 +106,8 @@ public class ExactAlgorithm {
 		Point_2 p1 = Pseudosource(w1);
 		Point_2 p2 = Pseudosource(w2);
 
-		System.out.println("IntersectPoint p1 "+p1.toString());
-		System.out.println("IntersectPoint p2 "+p2.toString());
+		System.out.println("IntersectPoint sw1 "+p1.toString());
+		System.out.println("IntersectPoint sw2 "+p2.toString());
 
 		double np1 = p1.x*p1.x+p1.y*p1.y;
 		double np2 = p2.x*p2.x+p2.y*p2.y;
@@ -122,27 +149,39 @@ public class ExactAlgorithm {
 	private void handleConflict(Window w1, Window w2){
 		double intersect = this.intersectPoint(w1, w2);
 		if (intersect == -1 && w1.LeftD()+w1.Sigma()<w2.LeftD()+w2.Sigma()){
+			System.out.println("pt inter = -1 et w2 predom");
 			TreeSet<Window> tswi = T.get(w1.Halfedge().index);
 			tswi.remove(w1);
 			tswi.add(w2);
-
+			System.out.println("created" + w2.to_string());
 			Q.add(w2);
 
 		}
 		
 		//on a un point d'intersect
 		else {
-			double[] paracoeff1 = this.exchangeCoeff(new double[]{w1.Left(), w1.Right(), w1.LeftD()*w1.LeftD(), w1.RightD()});
-			double[] paracoeff2 = this.exchangeCoeff(new double[]{w1.Left(), w1.Right(), w2.LeftD(), w2.RightD()});
-			double d11 = intersect*intersect + paracoeff1[0]*intersect+paracoeff1[1];
-			double d20 = intersect*intersect + paracoeff2[0]*intersect+paracoeff2[1];
+			System.out.println("pt inter > 0");
+			//double[] paracoeff1 = this.exchangeCoeff(new double[]{w1.Left(), w1.Right(), w1.LeftD(), w1.RightD()});
+			//double[] paracoeff2 = this.exchangeCoeff(new double[]{w1.Left(), w1.Right(), w2.LeftD(), w2.RightD()});
+			//double[] D1 = this.exchangeBackCoeff(new double[]{w1.Left(), intersect, paracoeff1[0], paracoeff1[1]});
+			//double[] D2 = this.exchangeBackCoeff(new double[]{intersect, w1.Right(), paracoeff2[0], paracoeff2[1]});
+			Point_2 w1s = Pseudosource(w1); Point_2 w2s = Pseudosource(w2);
+			double d11 = w1s.distanceFrom(new Point_2(intersect, 0.)).doubleValue();
+			double d20 = w2s.distanceFrom(new Point_2(intersect, 0.)).doubleValue();
+			//double d11 = D1[1]; double d20 = D2[0];
+			//System.out.println("intersect " + intersect);
+			//System.out.println("IntersectPoint sw1 "+w1s.toString());
+			//System.out.println("IntersectPoint sw2 "+w2s.toString());
+			//System.out.println("d11 " + d11);
+			//System.out.println("d20 " + d20);
 			w1.UpdateRight(intersect);w1.UpdateRightD(d11);
 			w2.UpdateLeft(intersect);w2.UpdateLeftD(d20);
 			TreeSet<Window> tswi = T.get(w1.Halfedge().index);
 			tswi.remove(w1);
 			tswi.add(w1);
 			tswi.add(w2);
-
+			System.out.println("created" + w1.to_string());
+			System.out.println("created" + w2.to_string());
 			Q.add(w1);
 			Q.add(w2);
 
@@ -207,13 +246,18 @@ public class ExactAlgorithm {
 		Point_3 wr = (Point_3)Point_3.linearCombination(new Point_3[]{p1,p2}, new Double[]{(l-w.Right())/l, w.Right()/l});
 		
 		//Point_2 s_2 = new Point_2(source.x, source.y);
-		Point_2 s_2 = this.Pseudosource(w);
+		Point_2 s_2 = this.goodPseudosource(new Point_2(p1.x, p1.y), new Point_2(p2.x, p2.y), new Point_2(p3.x, p3.y), this.Pseudosource(w));
 		Point_2 p_2_0 = new Point_2(wl.x, wl.y);
 		Point_2 p_2_1 = new Point_2(p1.x, p1.y);
 		Point_2 p_2_2 = new Point_2(p3.x, p3.y);
+		System.out.println("current situation s "+ s_2.toString());
+		System.out.println("current situation wl "+ p_2_0.toString());
+		
 		double[] cu2 = this.FindIntersection(s_2, p_2_0, p_2_1, p_2_2);
 		double u2 = cu2[0];
 		p_2_0 = new Point_2(wr.x, wr.y);
+		System.out.println("current situation wr "+ p_2_0.toString());
+		System.out.println("current situation p3 "+ p_2_2.toString());
 		double[] cv2 = this.FindIntersection(s_2, p_2_0, p_2_1, p_2_2);
 		double v2 = cv2[0];
 		p_2_1 = new Point_2(p3.x, p3.y);
@@ -255,6 +299,7 @@ public class ExactAlgorithm {
 		//fourth: case b0 = 0 or b1 = l --> creation of a new pseudosource and we add two more windows (dans le cas d'angle mort)
 		if (w.Left()==0 && u1>0 && u1<l1){
 			System.out.println("case 4-1");
+			System.out.println(u1);
 			double d0 = Math.sqrt(w.Left()*w.Left() + w.LeftD()*w.Left() + w.RightD());
 			//double[] coeff = this.exchangeCoeff(new double[]{0.,l2,0.,l2*l2});
 			//double[] coeffp = this.exchangeCoeff(new double[]{0.,u1,l2*l2,(cu1[1]-d0)*(cu1[1]-d0)});
@@ -265,6 +310,7 @@ public class ExactAlgorithm {
 		
 		if (w.Right()==l && v2>0 && v2<l2){
 			System.out.println("case 4-2");
+			System.out.println(v2);
 			double d1 = Math.sqrt(w.Right()*w.Right() + w.LeftD()*w.Right() + w.RightD());
 			//double[] coeff = this.exchangeCoeff(new double[]{v2,l2,(cv2[1]-d1)*(cv2[1]-d1),l1*l1});
 			//double[] coeffp = this.exchangeCoeff(new double[]{0.,l1,l1*l1,0.});
@@ -304,8 +350,8 @@ public class ExactAlgorithm {
 	//the two functions that follow allow us to switch from para coeff to dist coeff
 	//from distances to parabolic coeff
 	private double[] exchangeCoeff(double[] para){
-		double c1 = ((para[3] - para[2])-(para[1]*para[1] - para[0]*para[0]))/(para[1]- para[0]);
-		double c2 = para[2] - para[0]*para[0] - c1*para[0];
+		double c1 = ((para[3]*para[3] - para[2]*para[2])-(para[1]*para[1] - para[0]*para[0]))/(para[1]- para[0]);
+		double c2 = para[2]*para[2] - para[0]*para[0] - c1*para[0];
 		double[] res = {c1, c2};
 		return res;
 	}
@@ -314,6 +360,8 @@ public class ExactAlgorithm {
 	private double[] exchangeBackCoeff(double[] para){
 		double d0 = para[0]*para[0] + para[2]*para[0] + para[3];
 		double d1 = para[1]*para[1] + para[2]*para[1] + para[3];
+		d0 = Math.sqrt(d0);
+		d1 = Math.sqrt(d1);
 		double[] res = {d0, d1};
 		return res;
 	}
@@ -405,11 +453,8 @@ public class ExactAlgorithm {
 			//On ramène le triangle dans un plan orthogonal à (Oz)
 			Halfedge<Point_3> h = w.Halfedge();
 			Rotation R = new Rotation(h);
-			//R.basicInfo();
-			System.out.println(R.toString());
 			System.out.println("transform triangle");
 			R.TransformTriangle(h);
-		
 			//On trouve les opposite Windows
 			ArrayList<Window> New = FindOppositeWindows(w);
 			System.out.println("transform back triangle");
@@ -417,6 +462,7 @@ public class ExactAlgorithm {
 			
 			for (Window wi : New){
 				System.out.println("windows to be merged" + wi.to_string());
+				System.out.println("2pseudo : " + Pseudosource(wi).toString());
 			}
 			
 			//Pour chacune...
@@ -424,12 +470,14 @@ public class ExactAlgorithm {
 				//On prend les windows déjà présentes sur la halfedge correspondante
 				Halfedge<Point_3> hi = wi.Halfedge();
 				TreeSet<Window> Ti = this.T.get(hi.index);
+				//si il y en a pas on continue
 				if (Ti.tailSet(wi, true).isEmpty()){
 					System.out.println("il n'y a personne sur l'edge");
 					Ti.add(wi);
 					Q.add(wi);
 					continue;
 				}
+				
 				double[] Coeff = exchangeCoeff(new double[] {wi.Left(),wi.Right(),wi.LeftD(),wi.RightD()});
 				//On définit un tableau pour définir les nouvelles windows correctement découpées
 				double last = wi.Left();
@@ -437,8 +485,10 @@ public class ExactAlgorithm {
 				//ArrayList<Window> Remove = new ArrayList<Window>();
 				//ArrayList<Window> Add = new ArrayList<Window>();
 				System.out.println("nombre de windows à comparer : " + Ti.tailSet(wi, true).size());
+				
 				for(Window Wcompare : Ti.tailSet(wi, true)){
 					System.out.println("already there"+Wcompare.to_string());
+					System.out.println("2pseudo : " + Pseudosource(Wcompare).toString());
 					//Pas d'intersection (fin de la boucle)
 					if(Wcompare.Left()>wi.Right()) break;
 					//Pas d'intersection au début (cas absurde 
@@ -450,16 +500,20 @@ public class ExactAlgorithm {
 						double[] D = exchangeBackCoeff(new double[] {last, Wcompare.Left(),Coeff[0],Coeff[1]});
 						Window WindowCut = new Window(last,Wcompare.Left(),D[0],D[1],wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
 						//CutWindows.add(WindowCut);
+						//pas bien de modifier Ti pendant l'opération principale
 						Ti.add(WindowCut);
 						last = WindowCut.Right();
 					}
 					//On découpe
 					System.out.println("decoupage pre-conflit");
-					double[] D = exchangeBackCoeff(new double[] {last, Wcompare.Left(),Coeff[0],Coeff[1]});
+					double[] D = exchangeBackCoeff(new double[] {last, Math.min(Wcompare.Right(),wi.Right()),Coeff[0],Coeff[1]});
 					Window WindowCut = new Window(last,Math.min(Wcompare.Right(),wi.Right()),D[0],D[1],wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
 					last = WindowCut.Right();
+					System.out.println("cut result"+WindowCut.to_string());
 					//On compare puis on push les windows
+					System.out.println("post-conflit");
 					handleConflict(WindowCut, Wcompare);
+					
 				}
 				//Si espace vide à la fin
 				if (!equal(last,wi.Right())){

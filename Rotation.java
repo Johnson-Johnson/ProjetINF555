@@ -93,16 +93,18 @@ public class Rotation {
 	public void TransformTriangleBack(Halfedge<Point_3> h){
 		Rotation = Rotation.transpose();
 		TransformTriangle(h);
+		Rotation = Rotation.transpose(); //remettre bien la rotation
 	}
 	
 	
-	/*public void TransformVertex(Vertex<Point_3> v){
+	public void TransformVertex(Vertex<Point_3> v){
 		Point_3 p = v.getPoint();
 		v.setPoint(Transform(p));
 	}
 	
 	public void TransformBackVertex(Vertex<Point_3> v){
-		Point_3 p = v.getPoint();
-		v.setPoint(TransformBack(p));
-	}*/
+		Rotation = Rotation.transpose();
+		TransformVertex(v);
+		Rotation = Rotation.transpose(); //remettre bien la rotation
+	}
 }
