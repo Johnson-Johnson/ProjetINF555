@@ -103,9 +103,31 @@ public class MeshViewer extends PApplet {
 			    	Vertex<Point_3> s = this.mesh.polyhedron3D.vertices.get(0);
 			    	System.out.println("/////////////computing windows/////////////");
 			    	E.Geodesics(s);
-			    	TreeSet<Window> T = E.T.get(0);
-			    	for(Window w : T){
-			    		System.out.println(w.to_string());
+			    	//TreeSet<Window> T = E.T.get(0);
+			    	//for(Window w : T){
+			    	//	System.out.println(w.to_string());
+			    	//}
+			    	System.out.println("THE END OF THE ALGORITHM");
+			    	System.out.println("here are the results\n\n");
+			    	for (Vertex<Point_3> v : E.polyhedron3D.vertices){
+			    		Halfedge<Point_3> h = v.getHalfedge();
+			    		int index = h.index;
+			    		if (index ==0){
+			    			System.out.print(v.getPoint().toString());
+				    		System.out.println("-->"+0.0);
+				    		continue;
+			    		}
+			    		TreeSet<Window> Ti = E.T.get(index);
+			    		while (Ti.isEmpty()){
+			    			h = h.next.opposite;
+			    			index = h.index;
+			    			Ti = E.T.get(index);
+			    		}
+			    		
+			    		Window lastw = Ti.pollLast();
+			    		System.out.print(v.getPoint().toString());
+			    		System.out.println("-->"+lastw.RightD());
+			    		
 			    	}
 			    };
 			    break;
