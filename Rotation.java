@@ -9,7 +9,10 @@ public class Rotation {
 		Rotation = new Matrix(3,3);
 	}
 	
-
+	static double round7(double a){
+		return Math.round(a*10000000.)/10000000. ;
+	}
+	
 	public String toString(){
 		String l0 = "( "+Rotation.get(0, 0)+", "+ Rotation.get(0, 1)+", "+ Rotation.get(0, 2)+")";
 		String l1 = "( "+Rotation.get(1, 0)+", "+ Rotation.get(1, 1)+", "+ Rotation.get(1, 2)+")";
@@ -65,8 +68,9 @@ public class Rotation {
 		double[][] arrayp3 = {{p.x},{p.y},{p.z}};
 		Matrix mp3 = new Matrix(arrayp3);
 		Matrix res = Rotation.times(mp3);
+		//Point_3 resp = new Point_3(round7(res.get(0, 0)), round7(res.get(1, 0)), round7(res.get(2, 0)) );
 		Point_3 resp = new Point_3(res.get(0, 0), res.get(1, 0), res.get(2, 0));
-		System.out.println(resp.toString());
+		//System.out.println(resp.toString());
 		return resp;
 	}
 	

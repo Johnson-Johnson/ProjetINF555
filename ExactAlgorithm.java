@@ -106,8 +106,8 @@ public class ExactAlgorithm {
 		Point_2 p1 = Pseudosource(w1);
 		Point_2 p2 = Pseudosource(w2);
 
-		System.out.println("IntersectPoint sw1 "+p1.toString());
-		System.out.println("IntersectPoint sw2 "+p2.toString());
+		//System.out.println("IntersectPoint sw1 "+p1.toString());
+		//System.out.println("IntersectPoint sw2 "+p2.toString());
 
 		double np1 = p1.x*p1.x+p1.y*p1.y;
 		double np2 = p2.x*p2.x+p2.y*p2.y;
@@ -146,20 +146,27 @@ public class ExactAlgorithm {
 	//on considere que c'est la w1 qui était déjà en place et qui est challengée par w2
 	//ainsi on insère w2 dans la pile en retirant w1 si w2 gagne
 	//et on ne fait rien si w1 gagne
-	private void handleConflict(Window w1, Window w2){
+	private void handleConflict(Window w1, Window w2, ArrayList<Window> to_add, ArrayList<Window> to_remove){
 		double intersect = this.intersectPoint(w1, w2);
-		if (intersect == -1 && w1.LeftD()+w1.Sigma()<w2.LeftD()+w2.Sigma()){
+		
+		//si on a pas de point d'intersection mais qu'on est sur que la w2 gagne
+		if (intersect == -1 && ( (w1.LeftD()+w1.Sigma() > w2.LeftD()+w2.Sigma()) || (w1.RightD()+w1.Sigma() > w2.RightD()+w2.Sigma()) )){
 			System.out.println("pt inter = -1 et w2 predom");
-			TreeSet<Window> tswi = T.get(w1.Halfedge().index);
-			tswi.remove(w1);
-			tswi.add(w2);
+			//TreeSet<Window> tswi = T.get(w1.Halfedge().index);
+			//tswi.remove(w1);
+			//tswi.add(w2);
+			to_remove.add(w1);
+			to_add.add(w2);
 			System.out.println("created" + w2.to_string());
-			Q.add(w2);
-
+		}
+		
+		//si w1 predomine on ne fait rien bien sur
+		else if (intersect == -1){	
 		}
 		
 		//on a un point d'intersect
 		else {
+			to_remove.add(w1);
 			System.out.println("pt inter > 0");
 			//double[] paracoeff1 = this.exchangeCoeff(new double[]{w1.Left(), w1.Right(), w1.LeftD(), w1.RightD()});
 			//double[] paracoeff2 = this.exchangeCoeff(new double[]{w1.Left(), w1.Right(), w2.LeftD(), w2.RightD()});
@@ -169,22 +176,25 @@ public class ExactAlgorithm {
 			double d11 = w1s.distanceFrom(new Point_2(intersect, 0.)).doubleValue();
 			double d20 = w2s.distanceFrom(new Point_2(intersect, 0.)).doubleValue();
 			//double d11 = D1[1]; double d20 = D2[0];
-			//System.out.println("intersect " + intersect);
-			//System.out.println("IntersectPoint sw1 "+w1s.toString());
-			//System.out.println("IntersectPoint sw2 "+w2s.toString());
-			//System.out.println("d11 " + d11);
-			//System.out.println("d20 " + d20);
-			w1.UpdateRight(intersect);w1.UpdateRightD(d11);
-			w2.UpdateLeft(intersect);w2.UpdateLeftD(d20);
-			TreeSet<Window> tswi = T.get(w1.Halfedge().index);
-			tswi.remove(w1);
-			tswi.add(w1);
-			tswi.add(w2);
-			System.out.println("created" + w1.to_string());
+			Window w1c;
+			if (w1.LeftD() < w2.LeftD()){
+				w1.UpdateRight(intersect);w1.UpdateRightD(d11);
+				w2.UpdateLeft(intersect);w2.UpdateLeftD(d20);
+				w1c = new Window(w1.Left(), w1.Right(), w1.LeftD(), w1.RightD(), w1.Sigma(), w1.Halfedge(), w1.Pseudosource());
+			}
+			else {
+				w2.UpdateRight(intersect);w2.UpdateRightD(d11);
+				w1.UpdateLeft(intersect);w1.UpdateLeftD(d20);
+				w1c = new Window(w1.Left(), w1.Right(), w1.LeftD(), w1.RightD(), w1.Sigma(), w1.Halfedge(), w1.Pseudosource());
+			}
+			//TreeSet<Window> tswi = T.get(w1.Halfedge().index);
+			//tswi.remove(w1);
+			//tswi.add(w1);
+			//tswi.add(w2);
+			to_add.add(w1c);
+			to_add.add(w2);
+			System.out.println("created" + w1c.to_string());
 			System.out.println("created" + w2.to_string());
-			Q.add(w1);
-			Q.add(w2);
-
 		}
 	}
 	
@@ -246,18 +256,18 @@ public class ExactAlgorithm {
 		Point_3 wr = (Point_3)Point_3.linearCombination(new Point_3[]{p1,p2}, new Double[]{(l-w.Right())/l, w.Right()/l});
 		
 		//Point_2 s_2 = new Point_2(source.x, source.y);
-		Point_2 s_2 = this.goodPseudosource(new Point_2(p1.x, p1.y), new Point_2(p2.x, p2.y), new Point_2(p3.x, p3.y), this.Pseudosource(w));
+		Point_2 s_2 = this.goodPseudosource(new Point_2(wl.x, wl.y), new Point_2(wr.x, wr.y), new Point_2(p3.x, p3.y), this.Pseudosource(w));
 		Point_2 p_2_0 = new Point_2(wl.x, wl.y);
 		Point_2 p_2_1 = new Point_2(p1.x, p1.y);
 		Point_2 p_2_2 = new Point_2(p3.x, p3.y);
-		System.out.println("current situation s "+ s_2.toString());
-		System.out.println("current situation wl "+ p_2_0.toString());
+		//System.out.println("current situation s "+ s_2.toString());
+		//System.out.println("current situation wl "+ p_2_0.toString());
 		
 		double[] cu2 = this.FindIntersection(s_2, p_2_0, p_2_1, p_2_2);
 		double u2 = cu2[0];
 		p_2_0 = new Point_2(wr.x, wr.y);
-		System.out.println("current situation wr "+ p_2_0.toString());
-		System.out.println("current situation p3 "+ p_2_2.toString());
+		//System.out.println("current situation wr "+ p_2_0.toString());
+		//System.out.println("current situation p3 "+ p_2_2.toString());
 		double[] cv2 = this.FindIntersection(s_2, p_2_0, p_2_1, p_2_2);
 		double v2 = cv2[0];
 		p_2_1 = new Point_2(p3.x, p3.y);
@@ -287,7 +297,7 @@ public class ExactAlgorithm {
 		//third: both edges are hit by the ray
 		if (u2>=0 && v2>l2){
 			System.out.println("case 3");
-			double lsp3 = Math.sqrt(p3.minus(source).squaredLength().doubleValue());
+			double lsp3 = Math.sqrt(p_2_1.minus(s_2).squaredLength().doubleValue());
 			//double[] coeff = this.exchangeCoeff(new double[]{u2,l2,cu2[1]*cu2[1],lsp3});
 			//double[] coeffp = this.exchangeCoeff(new double[]{0.,v1,lsp3,cv1[1]*cv1[1]});
 			
@@ -439,37 +449,38 @@ public class ExactAlgorithm {
 	*/
 	
 	public void Geodesics(Vertex<Point_3> s){
-    	
+    	int step = 0;
 		this.Start(s);
 		System.out.println("iniQsize = "+Q.size());
 		int compteur = 0;
 		
 		while(!Q.isEmpty()){
-			if (compteur ==20) break;
+			//if (compteur ==25) break;
 			compteur++;
-			//On prend la plus proche
-			Window w = Q.poll();
-			System.out.println("\n\n\n\ncurrent window"+w.to_string());
-			//On ramène le triangle dans un plan orthogonal à (Oz)
-			Halfedge<Point_3> h = w.Halfedge();
-			Rotation R = new Rotation(h);
-			System.out.println("transform triangle");
-			R.TransformTriangle(h);
-			//On trouve les opposite Windows
-			ArrayList<Window> New = FindOppositeWindows(w);
-			System.out.println("transform back triangle");
-			R.TransformTriangleBack(h);
 			
-			for (Window wi : New){
-				System.out.println("windows to be merged" + wi.to_string());
-				System.out.println("2pseudo : " + Pseudosource(wi).toString());
+			//On prend celle avec le minimalDsquare
+			Window w = Q.poll();
+			System.out.println("\n\n\n\n"+" step = "+step+" size de Q = "+Q.size()+" current window"+w.to_string());step++;
+			
+			if (w.Sigma() == -1) {
+				System.out.println("to be removed");
+				continue;
 			}
 			
-			//Pour chacune...
+			//On trouve les windows en face
+			Halfedge<Point_3> h = w.Halfedge();
+			Rotation R = new Rotation(h);
+			R.TransformTriangle(h);
+			ArrayList<Window> New = FindOppositeWindows(w);
+			R.TransformTriangleBack(h);
+			
 			for(Window wi : New){
+				System.out.println("windows to be merged" + wi.to_string());
+				
 				//On prend les windows déjà présentes sur la halfedge correspondante
 				Halfedge<Point_3> hi = wi.Halfedge();
 				TreeSet<Window> Ti = this.T.get(hi.index);
+				
 				//si il y en a pas on continue
 				if (Ti.tailSet(wi, true).isEmpty()){
 					System.out.println("il n'y a personne sur l'edge");
@@ -482,41 +493,49 @@ public class ExactAlgorithm {
 				//On définit un tableau pour définir les nouvelles windows correctement découpées
 				double last = wi.Left();
 				//On découpe
-				//ArrayList<Window> Remove = new ArrayList<Window>();
-				//ArrayList<Window> Add = new ArrayList<Window>();
+				ArrayList<Window> to_remove = new ArrayList<Window>();
+				ArrayList<Window> to_add = new ArrayList<Window>();
 				System.out.println("nombre de windows à comparer : " + Ti.tailSet(wi, true).size());
 				
 				for(Window Wcompare : Ti.tailSet(wi, true)){
 					System.out.println("already there"+Wcompare.to_string());
-					System.out.println("2pseudo : " + Pseudosource(Wcompare).toString());
-					//Pas d'intersection (fin de la boucle)
-					if(Wcompare.Left()>wi.Right()) break;
-					//Pas d'intersection au début (cas absurde 
-					//if(Wcompare.Right()<wi.Left()) continue;
+		
+					if(Wcompare.Left()>=wi.Right()) break;
 					
-					//Si y a un espace vide
+					//Si y a un espace vide on le coupe
 					if(!equal(Wcompare.Left(),last)) {
-						System.out.println("existence de Vide sur l'arête");
+						System.out.println("/////existence de Vide sur l'arête");
 						double[] D = exchangeBackCoeff(new double[] {last, Wcompare.Left(),Coeff[0],Coeff[1]});
 						Window WindowCut = new Window(last,Wcompare.Left(),D[0],D[1],wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
-						//CutWindows.add(WindowCut);
-						//pas bien de modifier Ti pendant l'opération principale
-						Ti.add(WindowCut);
+						to_add.add(WindowCut);
 						last = WindowCut.Right();
 					}
+					
 					//On découpe
 					System.out.println("decoupage pre-conflit");
 					double[] D = exchangeBackCoeff(new double[] {last, Math.min(Wcompare.Right(),wi.Right()),Coeff[0],Coeff[1]});
 					Window WindowCut = new Window(last,Math.min(Wcompare.Right(),wi.Right()),D[0],D[1],wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
 					last = WindowCut.Right();
 					System.out.println("cut result"+WindowCut.to_string());
-					//On compare puis on push les windows
 					System.out.println("post-conflit");
-					handleConflict(WindowCut, Wcompare);
-					
+					handleConflict(Wcompare, WindowCut, to_add, to_remove);
+					System.out.println("sizes : "+to_add.size()+", "+to_remove.size());
 				}
+				System.out.println("size of Q before rem : "+Q.size());
+				for (Window wrem : to_remove){
+					Ti.remove(wrem);
+					//Q.remove(wrem);
+					wrem.UpdateSigma(-1.);
+				}
+				System.out.println("size of Q after rem : "+Q.size());
+				for (Window wadd : to_add){
+					Ti.remove(wadd);
+					Q.add(wadd);
+				}
+				System.out.println("size of Q after add : "+Q.size());
 				//Si espace vide à la fin
 				if (!equal(last,wi.Right())){
+					System.out.println("/////vide à la fin");
 					Window WindowCut = new Window(last,wi.Left(),wi.LeftD(),wi.RightD(),wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
 					//CutWindows.add(WindowCut);
 					Ti.add(WindowCut);
