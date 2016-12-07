@@ -120,7 +120,7 @@ public class MeshViewer extends PApplet {
 			    		}
 			    		int flag = 0;
 			    		TreeSet<Window> Ti = E.T.get(index);
-			    		while (Ti.isEmpty()){
+			    		/*while (Ti.isEmpty()){
 			    			//System.out.println("caaca");
 			    			if (flag == 0){
 			    				h = h.next;
@@ -132,7 +132,7 @@ public class MeshViewer extends PApplet {
 			    			}
 			    			index = h.index;
 			    			Ti = E.T.get(index);
-			    		}
+			    		}*/
 			    		
 			    		Window lastw = new Window(0., 0., 0. , 0. , 0., null, null);
 			    		
@@ -142,6 +142,15 @@ public class MeshViewer extends PApplet {
 			    		System.out.println("-->"+lastw.RightD());
 			    		
 			    	}
+			    	
+			    	for (Halfedge<Point_3> he : E.polyhedron3D.halfedges){
+			    		int i = he.index;
+			    		TreeSet<Window> Tsi = E.T.get(i);
+			    		for (Window wtsi : Tsi){
+			    			System.out.println(wtsi.to_string());
+			    		}
+			    	}
+			    	
 			    	System.out.println("END OF RESULTS");
 			    };
 			    break;

@@ -194,6 +194,7 @@ public class ExactAlgorithm {
 			to_add.add(w1c);
 			to_add.add(w2);
 			System.out.println("created" + w1c.to_string());
+			//System.out.println("STOOOOP = "+ w1c.Sigma());
 			System.out.println("created" + w2.to_string());
 		}
 	}
@@ -448,6 +449,20 @@ public class ExactAlgorithm {
 	}
 	*/
 	
+	/*public static void main(String args[]) {
+		TreeSet<Window> T = new TreeSet<Window>(new WindowBinarySearch());
+		T.add(new Window(0.,0.33,0.,0., 0., null, null));
+		T.add(new Window(0.33,0.37,0.,0., 0., null, null));
+		T.add(new Window(0.38,0.53,0.,0., 0., null, null));
+		T.add(new Window(0.79,0.85,0.,0., 0., null, null));
+		T.add(new Window(0.90,0.95,0.,0., 0., null, null));
+		Window wi = new Window(0.53,0.80,0.,0., 0., null, null);
+		for(Window Wcompare : T.tailSet(wi, true)){
+			if(Wcompare.Left()>=wi.Right()) break;
+			System.out.println("result" + Wcompare.Left() +", "+ Wcompare.Right());
+		}
+	}*/
+	
 	public void Geodesics(Vertex<Point_3> s){
     	int step = 0;
 		this.Start(s);
@@ -455,7 +470,7 @@ public class ExactAlgorithm {
 		int compteur = 0;
 		
 		while(!Q.isEmpty()){
-			//if (compteur ==25) break;
+			if (compteur ==38) break;
 			compteur++;
 			
 			//On prend celle avec le minimalDsquare
@@ -490,9 +505,8 @@ public class ExactAlgorithm {
 				}
 				
 				double[] Coeff = exchangeCoeff(new double[] {wi.Left(),wi.Right(),wi.LeftD(),wi.RightD()});
-				//On définit un tableau pour définir les nouvelles windows correctement découpées
+
 				double last = wi.Left();
-				//On découpe
 				ArrayList<Window> to_remove = new ArrayList<Window>();
 				ArrayList<Window> to_add = new ArrayList<Window>();
 				System.out.println("nombre de windows à comparer : " + Ti.tailSet(wi, true).size());
@@ -513,6 +527,8 @@ public class ExactAlgorithm {
 					
 					//On découpe
 					System.out.println("decoupage pre-conflit");
+					System.out.println("leftcut, rightcut : " + last + ", " +Math.min(Wcompare.Right(),wi.Right()));
+					
 					double[] D = exchangeBackCoeff(new double[] {last, Math.min(Wcompare.Right(),wi.Right()),Coeff[0],Coeff[1]});
 					Window WindowCut = new Window(last,Math.min(Wcompare.Right(),wi.Right()),D[0],D[1],wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
 					last = WindowCut.Right();
@@ -521,25 +537,26 @@ public class ExactAlgorithm {
 					handleConflict(Wcompare, WindowCut, to_add, to_remove);
 					System.out.println("sizes : "+to_add.size()+", "+to_remove.size());
 				}
-				System.out.println("size of Q before rem : "+Q.size());
-				for (Window wrem : to_remove){
-					Ti.remove(wrem);
-					//Q.remove(wrem);
-					wrem.UpdateSigma(-1.);
-				}
-				System.out.println("size of Q after rem : "+Q.size());
-				for (Window wadd : to_add){
-					Ti.remove(wadd);
-					Q.add(wadd);
-				}
-				System.out.println("size of Q after add : "+Q.size());
 				//Si espace vide à la fin
 				if (!equal(last,wi.Right())){
 					System.out.println("/////vide à la fin");
-					Window WindowCut = new Window(last,wi.Left(),wi.LeftD(),wi.RightD(),wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
-					//CutWindows.add(WindowCut);
-					Ti.add(WindowCut);
+					double[] D = exchangeBackCoeff(new double[] {last, wi.Right(),Coeff[0],Coeff[1]});
+					Window WindowCut = new Window(last,wi.Right(),D[0],D[1], wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
+					to_add.add(WindowCut);
+					System.out.println("final cut edge"+WindowCut.to_string());
 				}
+				for (Window wrem : to_remove){
+					System.out.println("size before rem : "+Ti.size());
+					Ti.tailSet(wrem, true).pollFirst();
+					System.out.println("size after rem : "+Ti.size());
+					wrem.UpdateSigma(-1.);
+				}
+				for (Window wadd : to_add){
+					if (wadd.Left()>wadd.Right()) System.out.println("STOOOOP");
+					Ti.add(wadd);
+					Q.add(wadd);
+				}
+				
 			}
 			//On remet le triangle comme il faut
 			//R.TransformTriangleBack(h);
@@ -554,6 +571,7 @@ public class ExactAlgorithm {
 		do {
 			Window w = new Window(0.,Norme(e),0.,Norme(e),0.,e,s);
 			this.Q.add(w);
+			this.T.get(e.index).add(w);
 			e = e.opposite.next;
 		} while(e.opposite!=h);
 
