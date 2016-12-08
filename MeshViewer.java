@@ -120,7 +120,7 @@ public class MeshViewer extends PApplet {
 			    		}
 			    		int flag = 0;
 			    		TreeSet<Window> Ti = E.T.get(index);
-			    		/*while (Ti.isEmpty()){
+			    		while (Ti.isEmpty()){
 			    			//System.out.println("caaca");
 			    			if (flag == 0){
 			    				h = h.next;
@@ -132,7 +132,7 @@ public class MeshViewer extends PApplet {
 			    			}
 			    			index = h.index;
 			    			Ti = E.T.get(index);
-			    		}*/
+			    		}
 			    		
 			    		Window lastw = new Window(0., 0., 0. , 0. , 0., null, null);
 			    		

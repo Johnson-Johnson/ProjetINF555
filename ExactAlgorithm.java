@@ -377,7 +377,17 @@ public class ExactAlgorithm {
 		return res;
 	}
 	
-
+	//allows us to stick to adjacent windows with same para coeffs
+	public void stickWindows(Window w1, Window w2, ArrayList<Window> to_remove, ArrayList<Window> to_add){//do we have to add it?
+		double[] Coeff1 = exchangeCoeff(new double[] {w1.Left(),w1.Right(),w1.LeftD(),w1.RightD()});
+		double[] Coeff2 = exchangeCoeff(new double[] {w2.Left(),w2.Right(),w2.LeftD(),w2.RightD()});
+		if (w1.Right()==w2.Left()&&Coeff1[0]==Coeff2[0]&&Coeff1[1]==Coeff2[1]){
+			to_add.add(new Window(w1.Left(), w2.Right(), w1.LeftD(), w2.RightD(), w1.Sigma(), w1.Halfedge(), w1.Pseudosource()));
+			to_remove.add(w1);
+			to_remove.add(w2);
+		}
+	}
+	
 	//main function in order to test previous fun
 	/*
 	public static void main(String args[]) {
@@ -478,7 +488,7 @@ public class ExactAlgorithm {
 			System.out.println("\n\n\n\n"+" step = "+step+" size de Q = "+Q.size()+" current window"+w.to_string());step++;
 			
 			if (w.Sigma() == -1) {
-				System.out.println("to be removed");
+				System.out.println("removed");
 				continue;
 			}
 			
@@ -509,13 +519,31 @@ public class ExactAlgorithm {
 				double last = wi.Left();
 				ArrayList<Window> to_remove = new ArrayList<Window>();
 				ArrayList<Window> to_add = new ArrayList<Window>();
+				ArrayList<Window> compcuts = new ArrayList<Window>();
 				System.out.println("nombre de windows à comparer : " + Ti.tailSet(wi, true).size());
 				
 				for(Window Wcompare : Ti.tailSet(wi, true)){
 					System.out.println("already there"+Wcompare.to_string());
-		
+					double[] CoeffComp = exchangeCoeff(new double[] {Wcompare.Left(),Wcompare.Right(),Wcompare.LeftD(),Wcompare.RightD()});
 					if(Wcompare.Left()>=wi.Right()) break;
 					
+					//si on est déjà sur une fenêtre
+					if(Wcompare.Left()<wi.Left()){
+						double[] DComp = exchangeBackCoeff(new double[] {Wcompare.Left(),wi.Left(),CoeffComp[0], CoeffComp[1]});
+						Window Wcompcut = new Window(Wcompare.Left(), wi.Left(), DComp[0], DComp[1], Wcompare.Sigma(), Wcompare.Halfedge(), Wcompare.Pseudosource());
+						compcuts.add(Wcompcut);
+						Wcompare.UpdateLeft(wi.Left());
+						Wcompare.UpdateLeftD(DComp[1]);
+					}
+					//si on termine sur une fenêtre
+					if(Wcompare.Right()>wi.Right()){
+						double[] DComp = exchangeBackCoeff(new double[] {wi.Right(),Wcompare.Right(),CoeffComp[0], CoeffComp[1]});
+						Window Wcompcut = new Window(wi.Right(), Wcompare.Right(), DComp[0], DComp[1], Wcompare.Sigma(), Wcompare.Halfedge(), Wcompare.Pseudosource());
+						compcuts.add(Wcompcut);
+						Wcompare.UpdateRight(wi.Right());
+						Wcompare.UpdateRightD(DComp[0]);
+					}
+					System.out.println("Wcompare after cut"+Wcompare.to_string());
 					//Si y a un espace vide on le coupe
 					if(!equal(Wcompare.Left(),last)) {
 						System.out.println("/////existence de Vide sur l'arête");
@@ -525,14 +553,17 @@ public class ExactAlgorithm {
 						last = WindowCut.Right();
 					}
 					
-					//On découpe
-					System.out.println("decoupage pre-conflit");
-					System.out.println("leftcut, rightcut : " + last + ", " +Math.min(Wcompare.Right(),wi.Right()));
+					//On découpe si necessaire
+					//if (!(wi.Left()==Wcompare.Left() && wi.Right()==Wcompare.Right())){
+						System.out.println("decoupage pre-conflit");
+						System.out.println("leftcut, rightcut : " + last + ", " +Math.min(Wcompare.Right(),wi.Right()));
+						
+						double[] D = exchangeBackCoeff(new double[] {last, Math.min(Wcompare.Right(),wi.Right()),Coeff[0],Coeff[1]});
+						Window WindowCut = new Window(last,Math.min(Wcompare.Right(),wi.Right()),D[0],D[1],wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
+						last = WindowCut.Right();
+						System.out.println("cut result"+WindowCut.to_string());
+					//}
 					
-					double[] D = exchangeBackCoeff(new double[] {last, Math.min(Wcompare.Right(),wi.Right()),Coeff[0],Coeff[1]});
-					Window WindowCut = new Window(last,Math.min(Wcompare.Right(),wi.Right()),D[0],D[1],wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
-					last = WindowCut.Right();
-					System.out.println("cut result"+WindowCut.to_string());
 					System.out.println("post-conflit");
 					handleConflict(Wcompare, WindowCut, to_add, to_remove);
 					System.out.println("sizes : "+to_add.size()+", "+to_remove.size());
@@ -556,6 +587,12 @@ public class ExactAlgorithm {
 					Ti.add(wadd);
 					Q.add(wadd);
 				}
+				for (Window wcompcut : compcuts){
+					if (wcompcut.Left()>wcompcut.Right()) System.out.println("STOOOOP");
+					Ti.add(wcompcut);
+				}
+				
+				//une fonction stickEdge() qui permet de recoller deux window pourrait servir...
 				
 			}
 			//On remet le triangle comme il faut
