@@ -92,6 +92,21 @@ public class SurfaceMesh {
 				this.view.strokeWeight(2); // draw edge (p,q)
 			}
 		}
+		
+		//the backtrack
+		/*ExactAlgorithm E = new ExactAlgorithm(this.polyhedron3D);
+    	Vertex<Point_3> source = this.polyhedron3D.vertices.get(0);
+    	E.Geodesics(source);
+    	System.out.println("geodesics computed\n\n");
+    	BackTrack wayBack = new BackTrack(E.polyhedron3D, source, E.T);
+    	wayBack.traceRay(0.5, E.polyhedron3D.halfedges.get(1));
+    	int n = wayBack.result.size();
+    	for (int i=0; i<n-1; i++){
+    		this.view.stroke(200);
+    		drawSegment(wayBack.result.get(i), wayBack.result.get(i+1));
+    		this.view.stroke(20);
+    	}*/
+		
 		view.strokeWeight(1);
 	}
 	

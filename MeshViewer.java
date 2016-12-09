@@ -15,8 +15,8 @@ public class MeshViewer extends PApplet {
 	SurfaceMesh mesh;
 	//String filename="OFF/twisted.off";
 	//String filename="OFF/sphere.off";
-	//String filename="OFF/star.off";
-	String filename="OFF/cube.off";
+	String filename="OFF/star.off";
+	//String filename="OFF/cube.off";
 	//String filename="OFF/torus_33.off";
 	//String filename="OFF/tore.off";
 	//String filename="OFF/tri_round_cube.off";
@@ -113,7 +113,7 @@ public class MeshViewer extends PApplet {
 			    	for (Vertex<Point_3> v : E.polyhedron3D.vertices){
 			    		Halfedge<Point_3> h = v.getHalfedge();
 			    		int index = h.index;
-			    		if (v.getPoint().x==0 &&v.getPoint().y==0 &&v.getPoint().z==0){
+			    		if (v.getPoint().x==-0. &&v.getPoint().y==-0. &&v.getPoint().z==-0.){
 			    			System.out.print(v.getPoint().toString());
 				    		System.out.println("-->"+0.0);
 				    		continue;
@@ -143,7 +143,10 @@ public class MeshViewer extends PApplet {
 			    		
 			    	}
 			    	
+			    	
+			    	
 			    	for (Halfedge<Point_3> he : E.polyhedron3D.halfedges){
+			    		//E.stickAllWindowsOnEdge(he);
 			    		int i = he.index;
 			    		TreeSet<Window> Tsi = E.T.get(i);
 			    		for (Window wtsi : Tsi){

@@ -68,9 +68,9 @@ public class Rotation {
 		double[][] arrayp3 = {{p.x},{p.y},{p.z}};
 		Matrix mp3 = new Matrix(arrayp3);
 		Matrix res = Rotation.times(mp3);
-		//Point_3 resp = new Point_3(round7(res.get(0, 0)), round7(res.get(1, 0)), round7(res.get(2, 0)) );
-		Point_3 resp = new Point_3(res.get(0, 0), res.get(1, 0), res.get(2, 0));
-		//System.out.println(resp.toString());
+		Point_3 resp = new Point_3(round7(res.get(0, 0)), round7(res.get(1, 0)), round7(res.get(2, 0)) );
+		//Point_3 resp = new Point_3(res.get(0, 0), res.get(1, 0), res.get(2, 0));
+		System.out.println(resp.toString());
 		return resp;
 	}
 	
@@ -110,5 +110,9 @@ public class Rotation {
 		Rotation = Rotation.transpose();
 		TransformVertex(v);
 		Rotation = Rotation.transpose(); //remettre bien la rotation
+	}
+	
+	public static void main(String args[]) {
+		System.out.println(Math.sqrt(11.));
 	}
 }

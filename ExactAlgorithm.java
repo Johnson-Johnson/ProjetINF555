@@ -34,7 +34,7 @@ public class ExactAlgorithm {
 	}
 	
 	//Précision à 1E-7
-	static boolean equal(double a, double b){
+	static boolean equal7(double a, double b){
 		if(Math.abs(a-b)<0.0000001) return true;
 		return false;
 	}
@@ -53,7 +53,7 @@ public class ExactAlgorithm {
 	//Résolution équation degré 2
 	static Pair<Double,Double> Solve(double a, double b, double c){
 		double Delta = b*b-4*a*c;
-		if (equal(Delta,0.)) Delta = 0.;
+		if (equal7(Delta,0.)) Delta = 0.;
 		if(Delta<0) return null;
 		return new Pair<Double,Double>((-b+Math.sqrt(Delta))/(2*a),(-b-Math.sqrt(Delta))/(2*a));
 		
@@ -81,18 +81,18 @@ public class ExactAlgorithm {
 		Point_2 origin = p2;
 		Vector_2 p13 = (Vector_2) p1.minus(p3);
 		double sign = Math.signum(p13.innerProduct(v).doubleValue());
-		System.out.println("sign "+sign);
+		//System.out.println("sign "+sign);
 		if (sign == 1.) {
-			System.out.println("done");
+			//System.out.println("done");
 			u=u.multiplyByScalar(-1.);
 			v=v.multiplyByScalar(-1.);
 			origin = p1;
 		}
-		/*System.out.println("u "+u.toString());
+		System.out.println("u "+u.toString());
 		System.out.println("v "+v.toString());
 		System.out.println("s "+s.toString());
 		System.out.println("p1 "+p1.toString());
-		System.out.println("p2 "+p2.toString());*/
+		System.out.println("p2 "+p2.toString());
 		return new Point_2(round7(s.x*u.x+s.y*v.x+origin.x),round7(s.x*u.y+s.y*v.y+origin.y));
 	}
 	
@@ -339,7 +339,7 @@ public class ExactAlgorithm {
 	//			p1
 	//
 	//returns position of intersection point
-	private double[] FindIntersection(Point_2 s, Point_2 p0, Point_2 p1, Point_2 p2){
+	public double[] FindIntersection(Point_2 s, Point_2 p0, Point_2 p1, Point_2 p2){
 		double sp0 = Math.sqrt(s.minus(p0).squaredLength().doubleValue());
 		double p1p2 = Math.sqrt(p2.minus(p1).squaredLength().doubleValue());
 		double infinity = 1000000000;
@@ -381,10 +381,35 @@ public class ExactAlgorithm {
 	public void stickWindows(Window w1, Window w2, ArrayList<Window> to_remove, ArrayList<Window> to_add){//do we have to add it?
 		double[] Coeff1 = exchangeCoeff(new double[] {w1.Left(),w1.Right(),w1.LeftD(),w1.RightD()});
 		double[] Coeff2 = exchangeCoeff(new double[] {w2.Left(),w2.Right(),w2.LeftD(),w2.RightD()});
-		if (w1.Right()==w2.Left()&&Coeff1[0]==Coeff2[0]&&Coeff1[1]==Coeff2[1]){
+		if (equal7(w1.Right(), w2.Left())&&equal7(Coeff1[0], Coeff2[0])&&equal7(Coeff1[1],Coeff2[1])){
 			to_add.add(new Window(w1.Left(), w2.Right(), w1.LeftD(), w2.RightD(), w1.Sigma(), w1.Halfedge(), w1.Pseudosource()));
 			to_remove.add(w1);
 			to_remove.add(w2);
+		}
+		else{
+			to_add.add(w1);
+			to_add.add(w2);
+		}
+	}
+	
+	public void stickAllWindowsOnEdge(Halfedge<Point_3> h){
+		int index = h.index;
+		ArrayList<Window> to_remove = new ArrayList<Window>();
+		ArrayList<Window> to_add = new ArrayList<Window>();
+		TreeSet<Window> Ti = T.get(index);
+		while (!Ti.isEmpty()){
+			Window w1 = Ti.pollFirst();
+			if (Ti.isEmpty()) {
+				to_add.add(w1); break;
+			}
+			Window w2 = Ti.pollFirst();
+			this.stickWindows(w1, w2, to_remove, to_add);
+		}
+		for (Window wrem : to_remove){
+			Ti.tailSet(wrem, true).pollFirst();
+		}
+		for (Window wadd : to_add){
+			Ti.add(wadd);
 		}
 	}
 	
@@ -459,7 +484,8 @@ public class ExactAlgorithm {
 	}
 	*/
 	
-	/*public static void main(String args[]) {
+	/*
+	public static void main(String args[]) {
 		TreeSet<Window> T = new TreeSet<Window>(new WindowBinarySearch());
 		T.add(new Window(0.,0.33,0.,0., 0., null, null));
 		T.add(new Window(0.33,0.37,0.,0., 0., null, null));
@@ -480,7 +506,7 @@ public class ExactAlgorithm {
 		int compteur = 0;
 		
 		while(!Q.isEmpty()){
-			if (compteur ==38) break;
+			//if (compteur ==38) break;
 			compteur++;
 			
 			//On prend celle avec le minimalDsquare
@@ -545,7 +571,7 @@ public class ExactAlgorithm {
 					}
 					System.out.println("Wcompare after cut"+Wcompare.to_string());
 					//Si y a un espace vide on le coupe
-					if(!equal(Wcompare.Left(),last)) {
+					if(!equal7(Wcompare.Left(),last)) {
 						System.out.println("/////existence de Vide sur l'arête");
 						double[] D = exchangeBackCoeff(new double[] {last, Wcompare.Left(),Coeff[0],Coeff[1]});
 						Window WindowCut = new Window(last,Wcompare.Left(),D[0],D[1],wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
@@ -569,7 +595,7 @@ public class ExactAlgorithm {
 					System.out.println("sizes : "+to_add.size()+", "+to_remove.size());
 				}
 				//Si espace vide à la fin
-				if (!equal(last,wi.Right())){
+				if (!equal7(last,wi.Right())){
 					System.out.println("/////vide à la fin");
 					double[] D = exchangeBackCoeff(new double[] {last, wi.Right(),Coeff[0],Coeff[1]});
 					Window WindowCut = new Window(last,wi.Right(),D[0],D[1], wi.Sigma(),wi.Halfedge(),wi.Pseudosource());
