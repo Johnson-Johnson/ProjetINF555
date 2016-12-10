@@ -8,6 +8,8 @@ import Jama.Matrix;
 
 public class ExactAlgorithm {
 	
+	int verbose;
+	
 	PriorityQueue<Window> Q;
 	
 	ArrayList<TreeSet<Window>> T;
@@ -261,14 +263,15 @@ public class ExactAlgorithm {
 		Point_2 p_2_0 = new Point_2(wl.x, wl.y);
 		Point_2 p_2_1 = new Point_2(p1.x, p1.y);
 		Point_2 p_2_2 = new Point_2(p3.x, p3.y);
-		System.out.println("current situation s "+ s_2.toString());
-		System.out.println("current situation wl "+ p_2_0.toString());
-		
+		if (verbose == 1) {
+			System.out.println("current situation s "+ s_2.toString()); System.out.println("current situation wl "+ p_2_0.toString());
+		}
 		double[] cu2 = this.FindIntersection(s_2, p_2_0, p_2_1, p_2_2);
 		double u2 = cu2[0];
 		p_2_0 = new Point_2(wr.x, wr.y);
-		System.out.println("current situation wr "+ p_2_0.toString());
-		System.out.println("current situation p3 "+ p_2_2.toString());
+		if (verbose ==1) {
+			System.out.println("current situation wr "+ p_2_0.toString()); System.out.println("current situation p3 "+ p_2_2.toString());
+		}
 		double[] cv2 = this.FindIntersection(s_2, p_2_0, p_2_1, p_2_2);
 		double v2 = cv2[0];
 		p_2_1 = new Point_2(p3.x, p3.y);
@@ -297,7 +300,7 @@ public class ExactAlgorithm {
 		}
 		
 		//third: both edges are hit by the ray
-		if ((equal7(u2,0) || u2>0) && l2<v2){
+		if ((equal7(u2,0) || u2>0) && (u2<l2) && (v1>0) && (equal7(v1,l1) || v1<l1)){
 		//if (u2>=0 && v2>l2){
 			System.out.println("case 3");
 			double lsp3 = Math.sqrt(p_2_1.minus(s_2).squaredLength().doubleValue());
@@ -342,9 +345,12 @@ public class ExactAlgorithm {
 	//
 	//returns position of intersection point
 	public double[] FindIntersection(Point_2 s, Point_2 p0, Point_2 p1, Point_2 p2){
-		System.out.println("finding intersection...");
-		System.out.println(s.toString()+"-->"+p0.toString());
-		System.out.println(p1.toString()+"-->"+p2.toString());
+		if (verbose == 1){
+			System.out.println("finding intersection...");
+			System.out.println(s.toString()+"-->"+p0.toString());
+			System.out.println(p1.toString()+"-->"+p2.toString());
+		}
+		
 		double sp0 = Math.sqrt(s.minus(p0).squaredLength().doubleValue());
 		double p1p2 = Math.sqrt(p2.minus(p1).squaredLength().doubleValue());
 		double infinity = 1000000000;
@@ -360,8 +366,10 @@ public class ExactAlgorithm {
 		A = A.inverse();
 		Matrix sol = A.times(b);
 		
-		System.out.println(sol.get(0, 0));
-		System.out.println(sol.get(1, 0));
+		if (verbose == 1){
+			System.out.println(sol.get(0, 0)); System.out.println(sol.get(1, 0));
+		}
+		//return new double[]{round7(sol.get(0, 0)), round7(sol.get(1, 0))};
 		return new double[]{sol.get(0, 0), sol.get(1, 0)};
 	}
 	
@@ -513,7 +521,7 @@ public class ExactAlgorithm {
 		int compteur = 0;
 		
 		while(!Q.isEmpty()){
-			if (compteur ==30) break;
+			//if (compteur == 30) break;
 			compteur++;
 			
 			//On prend celle avec le minimalDsquare
@@ -527,7 +535,7 @@ public class ExactAlgorithm {
 			
 			//On trouve les windows en face
 			Halfedge<Point_3> h = w.Halfedge();
-			Rotation R = new Rotation(h);
+			Rotation R = new Rotation(h); R.verbose = verbose;
 			R.TransformTriangle(h);
 			ArrayList<Window> New = FindOppositeWindows(w);
 			R.TransformTriangleBack(h);

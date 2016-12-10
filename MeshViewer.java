@@ -14,8 +14,8 @@ public class MeshViewer extends PApplet {
 
 	SurfaceMesh mesh;
 	//String filename="OFF/twisted.off";
-	//String filename="OFF/sphere.off";
-	String filename="OFF/star.off";
+	String filename="OFF/sphere.off";
+	//String filename="OFF/star.off";
 	//String filename="OFF/cube.off";
 	//String filename="OFF/torus_33.off";
 	//String filename="OFF/tore.off";
@@ -100,8 +100,13 @@ public class MeshViewer extends PApplet {
 			    	//	System.out.println(h.index);
 			    	//}
 			    	
+			    	//verbosity of the algo
+			    	int verbose = 0;
+			    	
 			    	ExactAlgorithm E = new ExactAlgorithm(this.mesh.polyhedron3D);
+			    	E.verbose = verbose;
 			    	Vertex<Point_3> s = this.mesh.polyhedron3D.vertices.get(0);
+			    	
 			    	System.out.println("/////////////computing windows/////////////");
 			    	E.Geodesics(s);
 			    	//TreeSet<Window> T = E.T.get(0);
@@ -113,46 +118,50 @@ public class MeshViewer extends PApplet {
 			    	for (Vertex<Point_3> v : E.polyhedron3D.vertices){
 			    		Halfedge<Point_3> h = v.getHalfedge();
 			    		int index = h.index;
-			    		if (v.getPoint().x==-0. &&v.getPoint().y==-0. &&v.getPoint().z==-0.){
+			    		if (v.getPoint().x==s.getPoint().x &&v.getPoint().y==s.getPoint().y &&v.getPoint().z==s.getPoint().z){
 			    			System.out.print(v.getPoint().toString());
 				    		System.out.println("-->"+0.0);
 				    		continue;
 			    		}
 			    		int flag = 0;
 			    		TreeSet<Window> Ti = E.T.get(index);
-			    		while (Ti.isEmpty()){
-			    			//System.out.println("caaca");
-			    			if (flag == 0){
-			    				h = h.next;
-			    				flag = 1;
-			    			}
-			    			if (flag == 1){
-			    				h = h.opposite;
-			    				flag = 0;
-			    			}
+			    		
+			    		if (Ti.isEmpty()){
+			    			h = h.opposite;
+			    			flag = 1;
 			    			index = h.index;
 			    			Ti = E.T.get(index);
 			    		}
 			    		
 			    		Window lastw = new Window(0., 0., 0. , 0. , 0., null, null);
 			    		
-			    		if (flag == 1) lastw = Ti.pollLast();
-			    		else if (flag == 0) lastw = Ti.pollFirst();
 			    		System.out.print(v.getPoint().toString());
-			    		System.out.println("-->"+lastw.RightD());
+			    		if (flag == 1) {
+			    			lastw = Ti.pollFirst();
+			    			System.out.println("-->"+lastw.LeftD());
+			    		}
+			    		else{
+			    			lastw = Ti.pollLast();
+			    			System.out.println("-->"+lastw.RightD());
+			    		}
+			    		
+			    		
+			    		
 			    		
 			    	}
 			    	
 			    	
-			    	
-			    	for (Halfedge<Point_3> he : E.polyhedron3D.halfedges){
-			    		//E.stickAllWindowsOnEdge(he);
-			    		int i = he.index;
-			    		TreeSet<Window> Tsi = E.T.get(i);
-			    		for (Window wtsi : Tsi){
-			    			System.out.println(wtsi.to_string());
+			    	if (verbose == 1){
+			    		for (Halfedge<Point_3> he : E.polyhedron3D.halfedges){
+				    		//E.stickAllWindowsOnEdge(he);
+				    		int i = he.index;
+				    		TreeSet<Window> Tsi = E.T.get(i);
+				    		for (Window wtsi : Tsi){
+				    			System.out.println(wtsi.to_string());
+				    		}
 			    		}
 			    	}
+			    	
 			    	
 			    	System.out.println("END OF RESULTS");
 			    };
