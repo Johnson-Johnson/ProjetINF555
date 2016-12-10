@@ -77,7 +77,7 @@ public class BackTrack {
 			double[] xh1 = EA.FindIntersection(s_2, X_2, p2_2, p3_2);
 			R.TransformTriangleBack(h);
 			
-			if (0<=xh2[0] && xh2[0]<=l2){
+			if ((equal7(0, xh2[0])||0<xh2[0]) && (equal7(l2, xh2[0])||xh2[0]<l2)){
 				System.out.println("on h2");
 				Point_3 intersection = (Point_3)Point_3.linearCombination(new Point_3[]{p1,p3}, new Double[]{(l2-xh2[0])/l2, xh2[0]/l2});
 				System.out.println("intersection = "+intersection);
@@ -85,7 +85,7 @@ public class BackTrack {
 				traceRay(xh2[0], h2);
 			}
 			
-			else if (0<=xh1[0] && xh1[0]<=l1){
+			else if ((equal7(0, xh1[0])||0<xh1[0]) && (equal7(l1, xh1[0])||xh1[0]<l1)){
 				System.out.println("on h1");
 				Point_3 intersection = (Point_3)Point_3.linearCombination(new Point_3[]{p2,p3}, new Double[]{(l1-xh1[0])/l1, xh1[0]/l1});
 				System.out.println("intersection = "+intersection);
